@@ -106,7 +106,8 @@ button, input { font: inherit; }
   align-items: center;
   gap: 40px;
 }
-.wordmark { display: inline-flex; align-items: center; gap: 13px; width: max-content; }
+.wordmark { display: inline-flex; align-items: center; width: max-content; }
+.brand-logo { display: block; width: 158px; height: 82px; object-fit: cover; border: 1px solid #171512; }
 .logo-mark {
   width: 46px;
   height: 46px;
@@ -252,6 +253,7 @@ button, input { font: inherit; }
 footer { background: #171512; color: #f5f0e6; }
 .footer-inner { min-height: 210px; display: grid; grid-template-columns: 1fr 1fr auto; align-items: center; gap: 40px; }
 .footer-brand .logo-mark { background: #f5f0e6; color: #171512; }
+.footer-logo { width: 142px; height: 94px; border-color: #f5f0e6; }
 .footer-inner > p { color: #aaa195; font-family: "Noto Serif TC", "Songti TC", Georgia, serif; font-size: 12px; }
 .footer-inner .copyright { font-family: Arial, sans-serif; font-size: 9px; letter-spacing: .16em; }
 
@@ -263,6 +265,8 @@ footer { background: #171512; color: #f5f0e6; }
   .logo-mark { width: 38px; height: 38px; }
   .logo-mark svg { width: 26px; height: 26px; }
   .wordmark strong { font-size: 16px; }
+  .brand-logo { width: 108px; height: 62px; }
+  .footer-logo { width: 122px; height: 81px; }
   .category-inner { justify-content: flex-start; width: 100%; overflow-x: auto; padding-inline: 18px; scrollbar-width: none; }
   .category-nav { display: none; }
   .category-nav.is-open { display: block; }

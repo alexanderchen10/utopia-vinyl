@@ -16,11 +16,11 @@ import { Button } from '@/components/ui/button';
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 const navigation = [
-  { id: 'new-arrivals', label: '新到唱片', english: 'New Arrivals', accent: true, description: '最新入櫃的精選黑膠會集中在這裡。' },
-  { id: 'classical', label: '古典', english: 'Classical', submenu: '依作曲家 A–Z 瀏覽', description: '從作曲家姓氏的英文字母開始尋找古典音樂。' },
-  { id: 'jazz', label: '爵士', english: 'Jazz', submenu: '依演奏家或樂團 A–Z 瀏覽', description: '按演奏家或樂團名稱的英文字母瀏覽爵士唱片。' },
-  { id: 'pop', label: '流行', english: 'Pop', description: '跨年代、跨語言的流行音樂收藏。' },
-  { id: 'taiwan', label: '臺灣黑膠', english: 'Taiwan Vinyl', description: '精選臺灣發行、演出與製作的黑膠唱片。' },
+  { id: 'new-arrivals', label: '新到唱片', english: 'New Arrivals', accent: true },
+  { id: 'classical', label: '古典', english: 'Classical', submenu: '依作曲家 A–Z 瀏覽' },
+  { id: 'jazz', label: '爵士', english: 'Jazz', submenu: '依演奏家或樂團 A–Z 瀏覽' },
+  { id: 'pop', label: '流行', english: 'Pop' },
+  { id: 'taiwan', label: '臺灣黑膠', english: 'Taiwan Vinyl' },
 ];
 
 export default function Home() {
@@ -56,12 +56,14 @@ export default function Home() {
             <Menu />
           </Button>
 
-          <a className="wordmark" href="#top" aria-label="回到首頁">
-            <span className="logo-mark"><Disc3 aria-hidden="true" /></span>
-            <span>
-              <strong>父親的唱片櫃</strong>
-              <small>DAD&apos;S VINYL</small>
-            </span>
+          <a className="wordmark" href="#top" aria-label="Utopia Vinyl 首頁">
+            <img
+              alt="Utopia Vinyl 黑膠理想國"
+              className="brand-logo"
+              height="1024"
+              src="/utopia-vinyl.png"
+              width="1536"
+            />
           </a>
 
           <label className="search-box">
@@ -122,7 +124,7 @@ export default function Home() {
           <span className="count-pill">0 張唱片</span>
         </div>
         <p className="intro">
-          {selectedNav.description} 第一批精選黑膠正在整理中，之後可以從作曲家、演奏家、樂團或類型慢慢尋找。
+          Welcome to Utopia Vinyl. Enjoy your experience browsing around. We have tons of vinyl records and have been operating since 2009.
         </p>
       </section>
 
@@ -173,12 +175,12 @@ export default function Home() {
         </section>
       </div>
 
-      <section className="brand-story shell" aria-label="父親的唱片櫃品牌介紹">
+      <section className="brand-story shell" aria-label="Utopia Vinyl 品牌介紹">
         <img
-          alt="父親的唱片櫃，暖色調黑膠唱片與唱片封套"
-          height="909"
-          src="/og.png"
-          width="1731"
+          alt="Utopia Vinyl 黑膠理想國金色唱片封套與黑膠唱片"
+          height="1024"
+          src="/utopia-vinyl.png"
+          width="1536"
         />
         <div>
           <p className="eyebrow">BUILT FOR THE COLLECTION</p>
@@ -197,12 +199,17 @@ export default function Home() {
 
       <footer>
         <div className="shell footer-inner">
-          <a className="wordmark footer-brand" href="#top">
-            <span className="logo-mark"><Disc3 aria-hidden="true" /></span>
-            <span><strong>父親的唱片櫃</strong><small>DAD&apos;S VINYL</small></span>
+          <a className="wordmark footer-brand" href="#top" aria-label="Utopia Vinyl 首頁">
+            <img
+              alt="Utopia Vinyl 黑膠理想國"
+              className="brand-logo footer-logo"
+              height="1024"
+              src="/utopia-vinyl.png"
+              width="1536"
+            />
           </a>
-          <p>一間為愛樂人準備的小小唱片店。</p>
-          <p className="copyright">© 2026 DAD&apos;S VINYL</p>
+          <p>自 2009 年起，為愛樂人收藏每一種聲音。</p>
+          <p className="copyright">© 2026 UTOPIA VINYL</p>
         </div>
       </footer>
     </main>
