@@ -175,20 +175,6 @@ export default function Home() {
         </section>
       </div>
 
-      <section className="brand-story shell" aria-label="Utopia Vinyl 品牌介紹">
-        <img
-          alt="Utopia Vinyl 黑膠理想國金色唱片封套與黑膠唱片"
-          height="1024"
-          src="/utopia-vinyl.png"
-          width="1536"
-        />
-        <div>
-          <p className="eyebrow">為收藏而生</p>
-          <h2>讓每一張唱片，<br />都有自己的位置。</h2>
-          <p>這個空間以收藏為主角；分類清楚、封面寬敞，也保留老唱片行那種慢慢翻找的樂趣。</p>
-        </div>
-      </section>
-
       <section className="browse-strip">
         <div className="shell browse-inner">
           <p><span>01</span> 古典音樂按作曲家 A–Z</p>

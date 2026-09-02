@@ -239,11 +239,6 @@ button, input { font: inherit; }
 .empty-catalog > p:not(.eyebrow) { max-width: 470px; margin: 17px auto 25px; color: #625d55; font-size: 13px; line-height: 1.8; }
 .notify-button { height: 39px; padding-inline: 18px; border-radius: 0; font-size: 11px; letter-spacing: .08em; }
 
-.brand-story { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, .7fr); gap: clamp(36px, 6vw, 90px); align-items: center; padding-bottom: 100px; }
-.brand-story img { display: block; width: 100%; height: auto; border: 1px solid #171512; }
-.brand-story h2 { margin: 0; font-family: "Noto Serif TC", "Songti TC", Georgia, serif; font-size: clamp(30px, 3.6vw, 52px); font-weight: 500; line-height: 1.35; }
-.brand-story div > p:last-child { max-width: 390px; margin: 24px 0 0; color: #625d55; font-family: "Noto Serif TC", "Songti TC", Georgia, serif; font-size: 14px; line-height: 1.9; }
-
 .browse-strip { border-block: 1px solid #171512; background: #dca729; }
 .browse-inner { min-height: 112px; display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; }
 .browse-inner p { height: 52px; margin: 0; padding: 15px 28px; border-left: 1px solid rgba(23,21,18,.35); font-family: "Noto Serif TC", "Songti TC", Georgia, serif; font-size: 13px; }
@@ -275,7 +270,6 @@ footer { background: #171512; color: #f5f0e6; }
   .nav-popover { display: none; }
   .catalog { grid-template-columns: 1fr; }
   .filters { display: none; }
-  .brand-story { grid-template-columns: 1fr; }
   .browse-inner { grid-template-columns: 1fr; padding-block: 20px; }
   .browse-inner p, .browse-inner p:last-child { height: auto; border: 0; border-bottom: 1px solid rgba(23,21,18,.28); }
   .browse-inner p:last-child { border-bottom: 0; }
@@ -293,7 +287,6 @@ footer { background: #171512; color: #f5f0e6; }
   .title-line h1 { font-size: 48px; }
   .count-pill { margin-top: 4px; }
   .catalog { padding-top: 26px; padding-bottom: 60px; }
-  .brand-story { padding-bottom: 60px; }
   .product-toolbar { align-items: center; }
   .empty-catalog { min-height: 470px; padding-inline: 22px; background-size: 54px 54px; }
 }
