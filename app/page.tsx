@@ -16,11 +16,11 @@ import { Button } from '@/components/ui/button';
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 const navigation = [
-  { id: 'new-arrivals', label: '新到唱片', english: 'New Arrivals', accent: true },
-  { id: 'classical', label: '古典', english: 'Classical', submenu: '依作曲家 A–Z 瀏覽' },
-  { id: 'jazz', label: '爵士', english: 'Jazz', submenu: '依演奏家或樂團 A–Z 瀏覽' },
-  { id: 'pop', label: '流行', english: 'Pop' },
-  { id: 'taiwan', label: '臺灣黑膠', english: 'Taiwan Vinyl' },
+  { id: 'new-arrivals', label: '新到唱片', subtitle: '最新入庫', accent: true },
+  { id: 'classical', label: '古典', subtitle: '按作曲家索引', submenu: '依作曲家英文字母瀏覽' },
+  { id: 'jazz', label: '爵士', subtitle: '按演奏家／樂團索引', submenu: '依演奏家或樂團英文字母瀏覽' },
+  { id: 'pop', label: '流行', subtitle: '流行音樂' },
+  { id: 'taiwan', label: '臺灣黑膠', subtitle: '臺灣之聲' },
 ];
 
 export default function Home() {
@@ -93,7 +93,7 @@ export default function Home() {
                   type="button"
                 >
                   <span>{item.label}</span>
-                  <small>{item.english}</small>
+                  <small>{item.subtitle}</small>
                   {item.submenu ? <ChevronDown aria-hidden="true" /> : null}
                 </button>
                 {item.submenu ? (
@@ -115,11 +115,11 @@ export default function Home() {
       </header>
 
       <section className="collection-heading shell" id="new-arrivals">
-        <p className="eyebrow">THE COLLECTION</p>
+        <p className="eyebrow">精選收藏</p>
         <div className="title-line">
           <div>
             <h1>{selectedNav.label}</h1>
-            <p>{selectedNav.english.toUpperCase()}</p>
+            <p>{selectedNav.subtitle}</p>
           </div>
           <span className="count-pill">0 張唱片</span>
         </div>
@@ -167,7 +167,7 @@ export default function Home() {
 
           <div className="empty-catalog">
             <div className="record-icon" aria-hidden="true"><Disc3 /></div>
-            <p className="eyebrow">COMING SOON</p>
+            <p className="eyebrow">即將上架</p>
             <h2 id="empty-title">{selectedLetter ? `${selectedLetter} 區尚未有唱片` : '唱片正在入櫃'}</h2>
             <p>「{selectedNav.label}」已經準備好迎接第一批收藏。加入唱片後，它們會以清楚的大封面網格顯示在這裡。</p>
             <Button className="notify-button" disabled>{selectedNav.label}會顯示在這裡</Button>
@@ -183,7 +183,7 @@ export default function Home() {
           width="1536"
         />
         <div>
-          <p className="eyebrow">BUILT FOR THE COLLECTION</p>
+          <p className="eyebrow">為收藏而生</p>
           <h2>讓每一張唱片，<br />都有自己的位置。</h2>
           <p>這個空間以收藏為主角；分類清楚、封面寬敞，也保留老唱片行那種慢慢翻找的樂趣。</p>
         </div>
@@ -209,7 +209,7 @@ export default function Home() {
             />
           </a>
           <p>自 2009 年起，為愛樂人收藏每一種聲音。</p>
-          <p className="copyright">© 2026 UTOPIA VINYL</p>
+          <p className="copyright">© 2026 Utopia Vinyl・版權所有</p>
         </div>
       </footer>
     </main>
