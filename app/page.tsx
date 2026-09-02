@@ -124,7 +124,7 @@ export default function Home() {
           <span className="count-pill">0 張唱片</span>
         </div>
         <p className="intro">
-          Welcome to Utopia Vinyl. Enjoy your experience browsing around. We have tons of vinyl records and have been operating since 2009.
+          歡迎來到 Utopia Vinyl。請盡情瀏覽，享受尋找唱片的樂趣。我們擁有豐富的黑膠唱片收藏，自 2009 年起營業至今。
         </p>
       </section>
 
