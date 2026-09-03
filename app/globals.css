@@ -220,6 +220,83 @@ button, input { font: inherit; }
 .product-toolbar p { margin: 0; color: #746e65; font-size: 11px; letter-spacing: .08em; }
 .product-toolbar button { display: flex; align-items: center; gap: 9px; padding: 0; border: 0; background: transparent; font-size: 11px; }
 .product-toolbar button svg { width: 13px; }
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px 30px;
+  padding-top: 30px;
+}
+.record-card { min-width: 0; }
+.record-cover {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border: 1px solid #c9c0b2;
+  background: #e7dfcf;
+}
+.record-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .35s ease;
+}
+.record-card:hover .record-cover img { transform: scale(1.015); }
+.record-cover > span {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 7px 10px;
+  background: #b93c29;
+  color: #fffaf1;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .16em;
+}
+.record-details { padding-top: 18px; }
+.record-composer {
+  min-height: 18px;
+  margin: 0 0 8px;
+  color: #b93c29;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  line-height: 1.6;
+}
+.record-details h2 {
+  margin: 0;
+  font-family: "Noto Serif TC", "Songti TC", Georgia, serif;
+  font-size: clamp(21px, 2vw, 29px);
+  font-weight: 500;
+  line-height: 1.25;
+}
+.record-performers {
+  min-height: 46px;
+  margin: 12px 0 18px;
+  color: #625d55;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.record-details dl {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  margin: 0;
+  padding-block: 13px;
+  border-block: 1px solid var(--border);
+}
+.record-details dl > div:last-child { text-align: right; }
+.record-details dt { color: #8b8479; font-size: 9px; letter-spacing: .12em; }
+.record-details dd { margin: 4px 0 0; font-size: 11px; }
+.record-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+}
+.record-status strong { font-family: "Noto Serif TC", "Songti TC", Georgia, serif; font-size: 15px; font-weight: 600; }
+.record-status span { color: #746e65; font-size: 10px; }
 .empty-catalog {
   min-height: 550px;
   display: flex;
@@ -270,6 +347,7 @@ footer { background: #171512; color: #f5f0e6; }
   .nav-popover { display: none; }
   .catalog { grid-template-columns: 1fr; }
   .filters { display: none; }
+  .product-grid { gap: 40px 22px; }
   .browse-inner { grid-template-columns: 1fr; padding-block: 20px; }
   .browse-inner p, .browse-inner p:last-child { height: auto; border: 0; border-bottom: 1px solid rgba(23,21,18,.28); }
   .browse-inner p:last-child { border-bottom: 0; }
@@ -288,5 +366,7 @@ footer { background: #171512; color: #f5f0e6; }
   .count-pill { margin-top: 4px; }
   .catalog { padding-top: 26px; padding-bottom: 60px; }
   .product-toolbar { align-items: center; }
+  .product-grid { grid-template-columns: 1fr; gap: 46px; }
+  .record-performers { min-height: 0; }
   .empty-catalog { min-height: 470px; padding-inline: 22px; background-size: 54px 54px; }
 }
