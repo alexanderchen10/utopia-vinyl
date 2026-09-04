@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import {
   ChevronDown,
@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { initialRecords, type VinylRecord } from '@/lib/catalog';
 
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
@@ -24,55 +25,8 @@ const navigation = [
   { id: 'taiwan', label: '臺灣黑膠', subtitle: '臺灣之聲' },
 ];
 
-type RecordCategory = 'classical' | 'jazz' | 'pop' | 'taiwan';
-
-type VinylRecord = {
-  id: string;
-  title: string;
-  composers: string;
-  performers: string;
-  category: RecordCategory;
-  indexLetters: string[];
-  label: string;
-  catalogNumber: string;
-  image: string;
-  newArrival: boolean;
-  price: string;
-  condition: string;
-};
-
-const records: VinylRecord[] = [
-  {
-    id: 'janos-starker-most-beautiful-melodies',
-    title: 'The Most Beautiful Melodies',
-    composers: '巴赫・海頓・舒伯特・聖桑・馬替奴・舒曼・布洛赫・韋伯',
-    performers: 'János Starker 大提琴・Shuku Iwasaki 鋼琴',
-    category: 'classical',
-    indexLetters: ['B', 'H', 'S', 'M', 'W'],
-    label: 'DENON PCM Recording',
-    catalogNumber: 'GK-7041-HQ',
-    image: '/records/janos-starker-most-beautiful-melodies.jpeg',
-    newArrival: true,
-    price: '價格待定',
-    condition: '品相待確認',
-  },
-  {
-    id: 'chopin-liszt-piano-concertos',
-    title: 'Chopin & Liszt: Piano Concertos No. 1',
-    composers: '蕭邦・李斯特',
-    performers: 'Martha Argerich 鋼琴・Claudio Abbado 指揮・London Symphony Orchestra',
-    category: 'classical',
-    indexLetters: ['C', 'L'],
-    label: 'Deutsche Grammophon',
-    catalogNumber: '139 383',
-    image: '/records/chopin-liszt-piano-concertos.jpeg',
-    newArrival: true,
-    price: '價格待定',
-    condition: '品相待確認',
-  },
-];
-
 export default function Home() {
+  const [records, setRecords] = useState<VinylRecord[]>(initialRecords);
   const [selected, setSelected] = useState('new-arrivals');
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -98,6 +52,26 @@ export default function Home() {
 
     return matchesCollection && matchesLetter && (!normalizedSearch || searchText.includes(normalizedSearch));
   });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch('/api/records')
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Unable to load records');
+        return (await response.json()) as { records?: VinylRecord[] };
+      })
+      .then((data) => {
+        if (!cancelled && data.records?.length) setRecords(data.records);
+      })
+      .catch(() => {
+        // Keep the built-in records visible if storage is temporarily unavailable.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function selectCollection(id: string) {
     setSelected(id);
