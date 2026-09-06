@@ -3,12 +3,74 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Camera, Check, ImagePlus, LoaderCircle, LockKeyhole, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Camera, Check, ImagePlus, LoaderCircle, LockKeyhole, LogOut, RotateCcw } from 'lucide-react';
 
 import { categoryLabels, type RecordCategory, type RecordStatus } from '@/lib/catalog';
 
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const acceptedImages = ['image/jpeg', 'image/png', 'image/webp'];
+const maximumOriginalImageBytes = 20 * 1024 * 1024;
+const targetStoredImageBytes = 700_000;
+
+function canvasToJpeg(canvas: HTMLCanvasElement, quality: number) {
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => blob ? resolve(blob) : reject(new Error('無法處理這張照片。')),
+      'image/jpeg',
+      quality,
+    );
+  });
+}
+
+async function prepareImage(file: File) {
+  const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+
+  try {
+    const longestSide = Math.max(bitmap.width, bitmap.height);
+    const initialScale = Math.min(1, 1500 / longestSide);
+    let width = Math.max(1, Math.round(bitmap.width * initialScale));
+    let height = Math.max(1, Math.round(bitmap.height * initialScale));
+    let bestBlob: Blob | null = null;
+
+    while (width >= 480 && height >= 480) {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error('無法處理這張照片。');
+
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, width, height);
+      context.drawImage(bitmap, 0, 0, width, height);
+
+      for (const quality of [0.84, 0.76, 0.68, 0.6]) {
+        const blob = await canvasToJpeg(canvas, quality);
+        bestBlob = blob;
+        if (blob.size <= targetStoredImageBytes) {
+          const baseName = file.name.replace(/\.[^.]+$/, '') || 'record-cover';
+          return new File([blob], `${baseName}.jpg`, {
+            lastModified: Date.now(),
+            type: 'image/jpeg',
+          });
+        }
+      }
+
+      width = Math.round(width * 0.82);
+      height = Math.round(height * 0.82);
+    }
+
+    if (!bestBlob || bestBlob.size > targetStoredImageBytes) {
+      throw new Error('照片處理後仍然太大，請換一張照片再試。');
+    }
+
+    return new File([bestBlob], 'record-cover.jpg', {
+      lastModified: Date.now(),
+      type: 'image/jpeg',
+    });
+  } finally {
+    bitmap.close();
+  }
+}
 
 type SubmitState =
   | { type: 'idle'; message: '' }
@@ -20,34 +82,56 @@ export default function AddRecordPage() {
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const previewUrlRef = useRef('');
+  const imageRequestRef = useRef(0);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState('');
+  const [originalImageName, setOriginalImageName] = useState('');
   const [selectedLetters, setSelectedLetters] = useState<string[]>([]);
   const [category, setCategory] = useState<RecordCategory>('classical');
   const [submitState, setSubmitState] = useState<SubmitState>({ type: 'idle', message: '' });
   const [fileInputKey, setFileInputKey] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
 
   useEffect(() => () => {
     if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
   }, []);
 
-  function chooseImage(file?: File) {
+  async function chooseImage(file?: File) {
     if (!file) return;
     if (!acceptedImages.includes(file.type)) {
       setSubmitState({ type: 'error', message: '請選擇 JPG、PNG 或 WebP 照片。' });
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      setSubmitState({ type: 'error', message: '照片太大，請選擇小於 10 MB 的照片。' });
+    if (file.size > maximumOriginalImageBytes) {
+      setSubmitState({ type: 'error', message: '照片太大，請選擇小於 20 MB 的照片。' });
       return;
     }
-    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
-    const previewUrl = URL.createObjectURL(file);
-    previewUrlRef.current = previewUrl;
-    setImagePreview(previewUrl);
-    setImageFile(file);
+
+    const requestId = imageRequestRef.current + 1;
+    imageRequestRef.current = requestId;
+    setIsOptimizing(true);
     setSubmitState({ type: 'idle', message: '' });
+
+    try {
+      const preparedFile = await prepareImage(file);
+      if (imageRequestRef.current !== requestId) return;
+
+      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+      const previewUrl = URL.createObjectURL(preparedFile);
+      previewUrlRef.current = previewUrl;
+      setImagePreview(previewUrl);
+      setImageFile(preparedFile);
+      setOriginalImageName(file.name);
+    } catch (error) {
+      if (imageRequestRef.current !== requestId) return;
+      setSubmitState({
+        type: 'error',
+        message: error instanceof Error ? error.message : '無法處理這張照片，請換一張再試。',
+      });
+    } finally {
+      if (imageRequestRef.current === requestId) setIsOptimizing(false);
+    }
   }
 
   function toggleLetter(letter: string) {
@@ -59,6 +143,7 @@ export default function AddRecordPage() {
   }
 
   function resetForm() {
+    imageRequestRef.current += 1;
     formRef.current?.reset();
     setCategory('classical');
     setSelectedLetters([]);
@@ -66,6 +151,8 @@ export default function AddRecordPage() {
     if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
     previewUrlRef.current = '';
     setImagePreview('');
+    setOriginalImageName('');
+    setIsOptimizing(false);
     setFileInputKey((key) => key + 1);
     setSubmitState({ type: 'idle', message: '' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -93,8 +180,16 @@ export default function AddRecordPage() {
     });
 
     try {
-      const response = await fetch('/api/admin/records', { method: 'POST', body: data });
+      const response = await fetch('/api/admin/records', {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: data,
+      });
       const result = (await response.json()) as { message?: string };
+      if (response.status === 401) {
+        window.location.assign('/vinyl-login');
+        return;
+      }
       if (!response.ok) throw new Error(result.message || '暫時無法儲存唱片。');
 
       setSubmitState({ type: 'success', message: result.message ?? '唱片已儲存。' });
@@ -108,6 +203,7 @@ export default function AddRecordPage() {
   }
 
   function resetFormAfterSuccess(message: string) {
+    imageRequestRef.current += 1;
     formRef.current?.reset();
     setCategory('classical');
     setSelectedLetters([]);
@@ -115,18 +211,27 @@ export default function AddRecordPage() {
     if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
     previewUrlRef.current = '';
     setImagePreview('');
+    setOriginalImageName('');
+    setIsOptimizing(false);
     setFileInputKey((key) => key + 1);
     setSubmitState({ type: 'success', message });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   const isSaving = submitState.type === 'saving';
+  const isBusy = isSaving || isOptimizing;
   const needsIndex = category === 'classical' || category === 'jazz';
+
+  async function logout() {
+    await fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' });
+    window.location.assign('/vinyl-login');
+  }
 
   return (
     <main className="admin-page">
       <div className="admin-topline">
         <p><LockKeyhole aria-hidden="true" /> UTOPIA VINYL 私人管理</p>
+        <button onClick={() => { void logout(); }} type="button"><LogOut aria-hidden="true" /> 登出</button>
       </div>
 
       <header className="admin-header admin-shell">
@@ -172,12 +277,13 @@ export default function AddRecordPage() {
             className="sr-only"
             key={fileInputKey}
             name="imagePicker"
-            onChange={(event) => chooseImage(event.target.files?.[0])}
+            onChange={(event) => { void chooseImage(event.target.files?.[0]); }}
             ref={fileInputRef}
             type="file"
           />
           <button
             className={`photo-drop ${imagePreview ? 'has-photo' : ''} ${isDragging ? 'is-dragging' : ''}`}
+            disabled={isOptimizing}
             onClick={() => fileInputRef.current?.click()}
             onDragEnter={(event) => { event.preventDefault(); setIsDragging(true); }}
             onDragOver={(event) => event.preventDefault()}
@@ -185,11 +291,17 @@ export default function AddRecordPage() {
             onDrop={(event) => {
               event.preventDefault();
               setIsDragging(false);
-              chooseImage(event.dataTransfer.files[0]);
+              void chooseImage(event.dataTransfer.files[0]);
             }}
             type="button"
           >
-            {imagePreview ? (
+            {isOptimizing ? (
+              <div className="photo-prompt photo-processing">
+                <div><LoaderCircle aria-hidden="true" /></div>
+                <strong>正在整理照片…</strong>
+                <span>稍等一下，照片會自動縮小。</span>
+              </div>
+            ) : imagePreview ? (
               <>
                 <Image alt="唱片封面預覽" fill sizes="(max-width: 780px) calc(100vw - 32px), 480px" src={imagePreview} unoptimized />
                 <span className="replace-photo"><ImagePlus aria-hidden="true" /> 更換照片</span>
@@ -199,13 +311,13 @@ export default function AddRecordPage() {
                 <div><ImagePlus aria-hidden="true" /></div>
                 <strong>點這裡選擇照片</strong>
                 <span>也可以把照片拖到這個方框</span>
-                <small>JPG、PNG 或 WebP・最大 10 MB</small>
+                <small>JPG、PNG 或 WebP・原圖最大 20 MB</small>
               </div>
             )}
           </button>
 
           {imageFile ? (
-            <div className="photo-ready"><Check aria-hidden="true" /> 已選擇：{imageFile.name}</div>
+            <div className="photo-ready"><Check aria-hidden="true" /> 照片已整理完成：{originalImageName}</div>
           ) : (
             <p className="photo-tip">小提醒：把唱片放正、光線照亮，拍出完整正方形封面最好看。</p>
           )}
@@ -301,7 +413,7 @@ export default function AddRecordPage() {
           <div className="form-actions">
             <button
               className="save-draft"
-              disabled={isSaving}
+              disabled={isBusy}
               onClick={() => {
                 if (formRef.current) void saveRecord(formRef.current, 'draft');
               }}
@@ -309,7 +421,7 @@ export default function AddRecordPage() {
             >
               儲存草稿
             </button>
-            <button className="publish-record" disabled={isSaving} type="submit">
+            <button className="publish-record" disabled={isBusy} type="submit">
               {isSaving ? <LoaderCircle aria-hidden="true" /> : <Check aria-hidden="true" />}
               立即上架
             </button>

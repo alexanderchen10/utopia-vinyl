@@ -1,17 +1,13 @@
 import { env } from 'cloudflare:workers';
 
 import { normalizeIndexLetters, type RecordCategory, type RecordStatus } from '@/lib/catalog';
-import { authorizeAdmin } from '@/lib/server/admin-auth';
+import { authorizeAdmin, isSameOriginRequest } from '@/lib/server/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
 const allowedCategories = new Set<RecordCategory>(['classical', 'jazz', 'pop', 'taiwan']);
 const allowedStatuses = new Set<RecordStatus>(['draft', 'published']);
-const imageExtensions: Record<string, string> = {
-  'image/jpeg': 'jpg',
-  'image/png': 'png',
-  'image/webp': 'webp',
-};
+const maximumStoredImageBytes = 800_000;
 
 function readText(formData: FormData, name: string, maxLength: number) {
   const value = formData.get(name);
@@ -41,12 +37,16 @@ function isSupportedImage(bytes: Uint8Array, contentType: string) {
 }
 
 export async function POST(request: Request) {
+  if (!isSameOriginRequest(request)) {
+    return Response.json({ message: '儲存要求無效，請重新整理頁面。' }, { status: 403 });
+  }
+
   const auth = await authorizeAdmin(request);
   if (!auth.ok) return Response.json({ message: auth.message }, { status: auth.status });
 
   const contentLength = Number(request.headers.get('content-length') ?? 0);
-  if (contentLength > 12 * 1024 * 1024) {
-    return Response.json({ message: '照片太大，請選擇小於 10 MB 的照片。' }, { status: 413 });
+  if (contentLength > 1_250_000) {
+    return Response.json({ message: '照片處理後仍然太大，請換一張照片再試。' }, { status: 413 });
   }
 
   let formData: FormData;
@@ -64,11 +64,11 @@ export async function POST(request: Request) {
   if (!(image instanceof File) || image.size === 0) {
     return Response.json({ message: '請先選擇唱片封面照片。' }, { status: 400 });
   }
-  if (image.size > 10 * 1024 * 1024) {
-    return Response.json({ message: '照片太大，請選擇小於 10 MB 的照片。' }, { status: 413 });
+  if (image.size > maximumStoredImageBytes) {
+    return Response.json({ message: '照片處理後仍然太大，請換一張照片再試。' }, { status: 413 });
   }
-  if (!imageExtensions[image.type]) {
-    return Response.json({ message: '照片只接受 JPG、PNG 或 WebP 格式。' }, { status: 400 });
+  if (image.type !== 'image/jpeg') {
+    return Response.json({ message: '照片格式處理失敗，請重新選擇照片。' }, { status: 400 });
   }
   if (!title) {
     return Response.json({ message: '請填寫唱片名稱。' }, { status: 400 });
@@ -86,8 +86,7 @@ export async function POST(request: Request) {
   }
 
   const id = crypto.randomUUID();
-  const imageKey = `${id}.${imageExtensions[image.type]}`;
-  const imageUrl = `/api/covers/${imageKey}`;
+  const imageUrl = `/api/covers/${id}`;
   const now = new Date().toISOString();
   const newArrival = formData.get('newArrival') === 'true' ? 1 : 0;
   const indexLetters = normalizeIndexLetters(readText(formData, 'indexLetters', 52));
@@ -98,21 +97,15 @@ export async function POST(request: Request) {
   const price = readText(formData, 'price', 50) || '價格待定';
   const condition = readText(formData, 'condition', 80) || '品相待確認';
 
-  await env.RECORD_COVERS.put(imageKey, bytes, {
-    httpMetadata: { contentType: image.type },
-    customMetadata: { uploadedBy: auth.email },
-  });
-
   try {
-    await env.DB
-      .prepare(
+    await env.DB.batch([
+      env.DB.prepare(
         `INSERT INTO records (
           id, title, composers, performers, category, index_letters, label,
           catalog_number, price, condition, image_url, image_key,
           image_content_type, is_new_arrival, status, created_at, updated_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      )
-      .bind(
+      ).bind(
         id,
         title,
         composers,
@@ -124,16 +117,19 @@ export async function POST(request: Request) {
         price,
         condition,
         imageUrl,
-        imageKey,
+        null,
         image.type,
         newArrival,
         status,
         now,
         now,
-      )
-      .run();
+      ),
+      env.DB.prepare(
+        `INSERT INTO record_images (record_id, image_blob, content_type, created_at)
+          VALUES (?, ?, ?, ?)`,
+      ).bind(id, bytes.buffer as ArrayBuffer, image.type, now),
+    ]);
   } catch (error) {
-    await env.RECORD_COVERS.delete(imageKey);
     console.error('Unable to save record metadata', error);
     return Response.json({ message: '暫時無法儲存唱片，請稍後再試。' }, { status: 500 });
   }

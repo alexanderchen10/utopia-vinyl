@@ -9,16 +9,18 @@ const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
 
 const { d1, r2 } = hostingConfig;
 const directDatabaseId = process.env.UTOPIA_D1_DATABASE_ID;
-const directBucketName = process.env.UTOPIA_R2_BUCKET_NAME;
+const adminEmails = process.env.UTOPIA_ADMIN_EMAILS;
 
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === 'seatbelt';
 
 const localBindingConfig = {
+  name: 'utopia-vinyl',
   main: 'vinext/server/fetch-handler',
   compatibility_date: '2026-05-22',
   compatibility_flags: ['nodejs_compat'],
   observability: { enabled: true },
+  vars: adminEmails ? { ADMIN_EMAILS: adminEmails } : undefined,
   d1_databases: d1
     ? [
         {
@@ -32,7 +34,7 @@ const localBindingConfig = {
     ? [
         {
           binding: r2,
-          bucket_name: directBucketName ?? 'site-creator-r2',
+          bucket_name: 'site-creator-r2',
         },
       ]
     : [],
