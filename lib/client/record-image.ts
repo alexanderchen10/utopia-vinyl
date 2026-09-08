@@ -11,6 +11,18 @@ export type CoverCorners = {
   bottomLeft: CoverPoint;
 };
 
+export type ScanAdjustments = {
+  brightness: number;
+  contrast: number;
+  saturation: number;
+};
+
+export const defaultScanAdjustments: ScanAdjustments = {
+  brightness: 1.015,
+  contrast: 1.035,
+  saturation: 1.01,
+};
+
 export type PreparedRecordImages = {
   original: File;
   scan: File;
@@ -195,11 +207,30 @@ function destinationToSourceHomography(corners: CoverCorners) {
   return solveLinearSystem(rows);
 }
 
-function clampChannel(value: number) {
-  return Math.max(0, Math.min(255, Math.round((value - 128) * 1.035 + 130)));
+function adjustedChannels(
+  red: number,
+  green: number,
+  blue: number,
+  adjustments: ScanAdjustments,
+) {
+  const luminance = red * 0.2126 + green * 0.7152 + blue * 0.0722;
+  const adjust = (value: number) => {
+    const saturated = luminance + (value - luminance) * adjustments.saturation;
+    const brightened = saturated * adjustments.brightness;
+    return Math.max(
+      0,
+      Math.min(255, Math.round((brightened - 128) * adjustments.contrast + 128)),
+    );
+  };
+
+  return [adjust(red), adjust(green), adjust(blue)];
 }
 
-export async function createPerspectiveScan(sourceFile: File, corners: CoverCorners) {
+export async function createPerspectiveScan(
+  sourceFile: File,
+  corners: CoverCorners,
+  adjustments: ScanAdjustments = defaultScanAdjustments,
+) {
   if (!isUsableCoverCorners(corners)) throw new Error('封面邊緣不夠清楚。');
   const bitmap = await createImageBitmap(sourceFile, { imageOrientation: 'from-image' });
 
@@ -233,9 +264,15 @@ export async function createPerspectiveScan(sourceFile: File, corners: CoverCorn
         const sourceY = Math.max(0, Math.min(bitmap.height - 1, Math.round(normalizedSourceY * (bitmap.height - 1))));
         const sourceIndex = (sourceY * bitmap.width + sourceX) * 4;
         const outputIndex = (outputY * outputSize + outputX) * 4;
-        target[outputIndex] = clampChannel(sourcePixels[sourceIndex]);
-        target[outputIndex + 1] = clampChannel(sourcePixels[sourceIndex + 1]);
-        target[outputIndex + 2] = clampChannel(sourcePixels[sourceIndex + 2]);
+        const [red, green, blue] = adjustedChannels(
+          sourcePixels[sourceIndex],
+          sourcePixels[sourceIndex + 1],
+          sourcePixels[sourceIndex + 2],
+          adjustments,
+        );
+        target[outputIndex] = red;
+        target[outputIndex + 1] = green;
+        target[outputIndex + 2] = blue;
         target[outputIndex + 3] = 255;
       }
     }

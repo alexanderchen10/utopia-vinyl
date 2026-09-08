@@ -62,7 +62,7 @@ export default function Home() {
         return (await response.json()) as { records?: VinylRecord[] };
       })
       .then((data) => {
-        if (!cancelled && data.records?.length) setRecords(data.records);
+        if (!cancelled && Array.isArray(data.records)) setRecords(data.records);
       })
       .catch(() => {
         // Keep the built-in records visible if storage is temporarily unavailable.

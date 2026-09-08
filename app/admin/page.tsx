@@ -15,9 +15,11 @@ import {
   RefreshCw,
   RotateCcw,
   ScanLine,
+  SlidersHorizontal,
   Sparkles,
 } from 'lucide-react';
 
+import { PhotoScanEditor } from '@/components/admin/photo-scan-editor';
 import {
   createPerspectiveScan,
   isUsableCoverCorners,
@@ -88,6 +90,8 @@ export default function AddRecordPage() {
   const [analysisNotes, setAnalysisNotes] = useState<string[]>([]);
   const [analysisState, setAnalysisState] = useState<AnalysisState>({ type: 'idle', message: '' });
   const [submitState, setSubmitState] = useState<SubmitState>({ type: 'idle', message: '' });
+  const [detectedCorners, setDetectedCorners] = useState<CoverCorners | null>(null);
+  const [scanEditorOpen, setScanEditorOpen] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
@@ -158,6 +162,7 @@ export default function AddRecordPage() {
         record.coverCornersConfidence >= 0.62 &&
         isUsableCoverCorners(record.coverCorners)
       ) {
+        setDetectedCorners(record.coverCorners);
         try {
           const correctedScan = await createPerspectiveScan(originalFile, record.coverCorners);
           if (imageRequestRef.current !== requestId) return;
@@ -199,6 +204,7 @@ export default function AddRecordPage() {
     setAnalysisState({ type: 'idle', message: '' });
     setAnalysisNotes([]);
     setConfidence(null);
+    setDetectedCorners(null);
     setSubmitState({ type: 'idle', message: '' });
 
     try {
@@ -247,6 +253,8 @@ export default function AddRecordPage() {
     setConfidence(null);
     setAnalysisNotes([]);
     setAnalysisState({ type: 'idle', message: '' });
+    setDetectedCorners(null);
+    setScanEditorOpen(false);
     setIsOptimizing(false);
     setFileInputKey((key) => key + 1);
     setSubmitState({ type: 'idle', message: '' });
@@ -314,6 +322,8 @@ export default function AddRecordPage() {
     setConfidence(null);
     setAnalysisNotes([]);
     setAnalysisState({ type: 'idle', message: '' });
+    setDetectedCorners(null);
+    setScanEditorOpen(false);
     setIsOptimizing(false);
     setFileInputKey((key) => key + 1);
     setSubmitState({ type: 'success', message });
@@ -350,6 +360,13 @@ export default function AddRecordPage() {
         </div>
         <Link className="back-to-shop" href="/"><ArrowLeft aria-hidden="true" /> 回到商店</Link>
       </header>
+
+      <nav aria-label="唱片管理功能" className="admin-section-nav">
+        <div className="admin-shell">
+          <Link aria-current="page" href="/admin">新增唱片</Link>
+          <Link href="/admin/records">管理唱片</Link>
+        </div>
+      </nav>
 
       <div className="admin-steps" aria-label="新增唱片步驟">
         <div className="admin-shell">
@@ -438,6 +455,14 @@ export default function AddRecordPage() {
                   type="button"
                 >原始照片</button>
               </div>
+              <button
+                className="open-scan-editor"
+                disabled={!originalImageFile || isBusy}
+                onClick={() => setScanEditorOpen(true)}
+                type="button"
+              >
+                <SlidersHorizontal aria-hidden="true" /> 調整裁切與色彩
+              </button>
               <p className="photo-tip">若自動裁切不正確，請選擇「原始照片」。上架時只會使用目前顯示的版本。</p>
             </>
           ) : (
@@ -608,6 +633,20 @@ export default function AddRecordPage() {
           ) : null}
         </section>
       </form>
+
+      {scanEditorOpen && originalImageFile ? (
+        <PhotoScanEditor
+          file={originalImageFile}
+          initialCorners={detectedCorners}
+          onApply={(scan) => {
+            setScanImageFile(scan);
+            showImage(scan, 'scan');
+            setSubmitState({ type: 'success', message: '照片裁切與色彩已更新，請檢查後再上架。' });
+          }}
+          onOpenChange={setScanEditorOpen}
+          open
+        />
+      ) : null}
     </main>
   );
 }

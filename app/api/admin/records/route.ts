@@ -2,6 +2,7 @@ import { env } from 'cloudflare:workers';
 
 import { normalizeIndexLetters, type RecordCategory, type RecordStatus } from '@/lib/catalog';
 import { authorizeAdmin, isSameOriginRequest } from '@/lib/server/admin-auth';
+import { listAdminRecords } from '@/lib/server/catalog-store';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +35,19 @@ function isSupportedImage(bytes: Uint8Array, contentType: string) {
     );
   }
   return false;
+}
+
+export async function GET(request: Request) {
+  const auth = await authorizeAdmin(request);
+  if (!auth.ok) return Response.json({ message: auth.message }, { status: auth.status });
+
+  try {
+    const records = await listAdminRecords(env.DB);
+    return Response.json({ records });
+  } catch (error) {
+    console.error(JSON.stringify({ event: 'admin_records_read_failed', error: String(error) }));
+    return Response.json({ message: '暫時無法讀取唱片，請稍後再試。' }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
@@ -86,7 +100,7 @@ export async function POST(request: Request) {
   }
 
   const id = crypto.randomUUID();
-  const imageUrl = `/api/covers/${id}`;
+  const imageUrl = `/api/covers/${id}?v=${Date.now()}`;
   const now = new Date().toISOString();
   const newArrival = formData.get('newArrival') === 'true' ? 1 : 0;
   const indexLetters = normalizeIndexLetters(readText(formData, 'indexLetters', 52));
@@ -130,7 +144,7 @@ export async function POST(request: Request) {
       ).bind(id, bytes.buffer as ArrayBuffer, image.type, now),
     ]);
   } catch (error) {
-    console.error('Unable to save record metadata', error);
+    console.error(JSON.stringify({ event: 'admin_record_create_failed', error: String(error) }));
     return Response.json({ message: '暫時無法儲存唱片，請稍後再試。' }, { status: 500 });
   }
 

@@ -9,7 +9,7 @@ import './admin.css';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: '新增唱片｜Utopia Vinyl 私人管理',
+  title: 'Utopia Vinyl 私人管理',
   robots: { index: false, follow: false },
 };
 

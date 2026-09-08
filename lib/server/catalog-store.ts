@@ -62,3 +62,17 @@ export async function listPublishedRecords(db: D1Database) {
 
   return result.results.map(mapRecordRow);
 }
+
+export async function listAdminRecords(db: D1Database) {
+  const result = await db
+    .prepare(
+      `SELECT id, title, composers, performers, category, index_letters,
+        label, catalog_number, price, condition, image_url, is_new_arrival,
+        status, created_at
+      FROM records
+      ORDER BY updated_at DESC, created_at DESC`,
+    )
+    .all<RecordRow>();
+
+  return result.results.map(mapRecordRow);
+}
