@@ -20,6 +20,7 @@ const localBindingConfig = {
   compatibility_date: '2026-05-22',
   compatibility_flags: ['nodejs_compat'],
   observability: { enabled: true },
+  ai: { binding: 'AI', remote: true },
   vars: adminEmails ? { ADMIN_EMAILS: adminEmails } : undefined,
   d1_databases: d1
     ? [

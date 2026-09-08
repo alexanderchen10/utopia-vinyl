@@ -39,4 +39,10 @@ export const recordsSchema = `
     window_started_at INTEGER NOT NULL,
     blocked_until INTEGER NOT NULL DEFAULT 0
   );
+
+  CREATE TABLE IF NOT EXISTS admin_ai_usage (
+    usage_day TEXT PRIMARY KEY,
+    request_count INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL
+  );
 `;

@@ -211,6 +211,7 @@
 .photo-drop.has-photo { border-style: solid; background: #d9cfbf; }
 .photo-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .photo-drop > img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.photo-drop.show-original > img { object-fit: contain; }
 
 .photo-prompt { display: flex; flex-direction: column; align-items: center; padding: 40px; text-align: center; }
 .photo-prompt > div {
@@ -247,6 +248,87 @@
 .photo-ready { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: #33704a; font-size: 11px; font-weight: 700; }
 .photo-ready svg { width: 15px; }
 
+.scan-choice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-top: 13px;
+  padding: 5px;
+  border: 1px solid #c7bcad;
+  background: #e3d8c9;
+}
+.scan-choice button {
+  min-height: 39px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 0;
+  background: transparent;
+  color: #5d564d;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.scan-choice button[aria-pressed="true"] { background: #191714; color: #fffaf0; }
+.scan-choice button:disabled { cursor: wait; opacity: .55; }
+.scan-choice svg { width: 15px; }
+
+.analysis-card {
+  display: grid;
+  grid-template-columns: 38px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid #bbb09f;
+  background: #fffdf8;
+}
+.analysis-card.analyzing { border-color: #a98935; background: #fff8e4; }
+.analysis-card.success { border-color: #4d7d5c; background: #f3f8ee; }
+.analysis-card.error { border-color: #a34b3e; background: #fff6f2; }
+.analysis-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #191714;
+  color: #fffaf0;
+}
+.analysis-icon svg { width: 18px; }
+.analysis-card.analyzing .analysis-icon svg { animation: admin-spin 1s linear infinite; }
+.analysis-card strong { display: block; font-size: 12px; }
+.analysis-card p { margin: 4px 0 0; color: #615b52; font-size: 10px; line-height: 1.6; }
+.analysis-card small { display: block; margin-top: 5px; color: #33704a; font-size: 9px; font-weight: 700; }
+.analysis-card > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #191714;
+  background: transparent;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.analysis-card > button svg { width: 13px; }
+
+.review-reminder {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  margin: 0 0 21px;
+  padding: 15px 16px;
+  border-left: 4px solid #d7a523;
+  background: #fff8e4;
+}
+.review-reminder > svg { width: 20px; margin-top: 1px; color: #9a7112; }
+.review-reminder strong { font-size: 12px; }
+.review-reminder p { margin: 4px 0 0; color: #645c50; font-size: 10px; line-height: 1.6; }
+.review-reminder ul { margin: 7px 0 0; padding-left: 17px; color: #645c50; font-size: 10px; line-height: 1.55; }
+
 .form-field { display: flex; flex-direction: column; gap: 9px; }
 .full-field { margin-top: 8px; }
 .form-field label,
@@ -257,8 +339,21 @@
   font-weight: 700;
   letter-spacing: .05em;
 }
+.form-field label,
+.category-field legend,
+.index-field legend { display: flex; align-items: center; gap: 7px; }
 .form-field em,
 .category-field em { color: #af3828; font-size: 9px; font-style: normal; }
+.form-field label span,
+.category-field legend span,
+.index-field legend span {
+  padding: 3px 6px;
+  background: #e2b33f;
+  color: #191714;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
 .form-field input,
 .form-field select {
   width: 100%;
@@ -274,6 +369,10 @@
 .form-field input:focus,
 .form-field select:focus { border-color: #af3828; box-shadow: 0 0 0 2px rgba(175, 56, 40, .12); }
 .form-field input::placeholder { color: #aaa195; }
+.form-field.needs-review input,
+.category-field.needs-review .category-choices,
+.index-field.needs-review { box-shadow: 0 0 0 2px rgba(215, 165, 35, .34); }
+.form-field.needs-review input { border-color: #c8981e; background: #fffaf0; }
 
 .category-field,
 .index-field { margin: 25px 0 0; padding: 0; border: 0; }
@@ -387,4 +486,6 @@
   .category-choices { grid-template-columns: 1fr 1fr; }
   .admin-alphabet { grid-template-columns: repeat(7, 1fr); }
   .form-actions { grid-template-columns: 1fr; }
+  .analysis-card { grid-template-columns: 34px 1fr; }
+  .analysis-card > button { grid-column: 1 / -1; justify-content: center; }
 }
