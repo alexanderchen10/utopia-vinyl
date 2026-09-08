@@ -289,7 +289,23 @@ export default function RecordPage() {
               <div className="related-grid">
                 {relatedRecords.map((item) => (
                   <article className="related-card" key={item.id}>
-                    <Link href={`/records/${item.id}`}>
+                    <Link
+                      href={`/records/${item.id}`}
+                      onClick={(event) => {
+                        if (
+                          event.button !== 0 ||
+                          event.metaKey ||
+                          event.ctrlKey ||
+                          event.shiftKey ||
+                          event.altKey
+                        ) {
+                          return;
+                        }
+
+                        event.preventDefault();
+                        window.location.assign(`/records/${item.id}`);
+                      }}
+                    >
                       <div className="related-cover">
                         <Image
                           alt={`${item.title} 唱片封面`}

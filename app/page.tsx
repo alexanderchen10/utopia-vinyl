@@ -296,6 +296,20 @@ export default function Home() {
                     aria-label={`查看 ${record.title} 唱片詳情`}
                     className="record-card-link"
                     href={`/records/${record.id}`}
+                    onClick={(event) => {
+                      if (
+                        event.button !== 0 ||
+                        event.metaKey ||
+                        event.ctrlKey ||
+                        event.shiftKey ||
+                        event.altKey
+                      ) {
+                        return;
+                      }
+
+                      event.preventDefault();
+                      window.location.assign(`/records/${record.id}`);
+                    }}
                   >
                     <div className="record-cover">
                       <Image
