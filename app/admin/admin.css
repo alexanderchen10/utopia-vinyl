@@ -442,7 +442,7 @@
 
 .scan-choice {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 7px;
   margin-top: 13px;
   padding: 5px;
@@ -472,18 +472,6 @@
 }
 .scan-choice svg {
   width: 15px;
-}
-.scan-choice .cleanup-spinner {
-  animation: admin-spin 1s linear infinite;
-}
-.photo-cleanup-status {
-  margin: 10px 0 0;
-  padding: 10px 12px;
-  border-left: 3px solid #33704a;
-  background: #f3f8ee;
-  color: #285d3c;
-  font-size: 12px;
-  line-height: 1.55;
 }
 
 .analysis-card {
@@ -1727,9 +1715,6 @@
     grid-template-columns: repeat(7, 1fr);
   }
   .form-actions {
-    grid-template-columns: 1fr;
-  }
-  .scan-choice {
     grid-template-columns: 1fr;
   }
   .analysis-card {

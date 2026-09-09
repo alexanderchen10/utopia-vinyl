@@ -21,7 +21,6 @@ import {
 
 import { PhotoScanEditor } from '@/components/admin/photo-scan-editor';
 import {
-  createCleanedRecordPhoto,
   createPerspectiveScan,
   isUsableCoverCorners,
   prepareRecordPhoto,
@@ -77,7 +76,7 @@ type SubmitState =
   | { type: 'success'; message: string }
   | { type: 'error'; message: string };
 
-type ImageMode = 'scan' | 'cleaned' | 'original';
+type ImageMode = 'scan' | 'original';
 
 export default function AddRecordPage() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -87,7 +86,6 @@ export default function AddRecordPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [originalImageFile, setOriginalImageFile] = useState<File | null>(null);
   const [scanImageFile, setScanImageFile] = useState<File | null>(null);
-  const [cleanedImageFile, setCleanedImageFile] = useState<File | null>(null);
   const [imageMode, setImageMode] = useState<ImageMode>('scan');
   const [imagePreview, setImagePreview] = useState('');
   const [originalImageName, setOriginalImageName] = useState('');
@@ -111,8 +109,6 @@ export default function AddRecordPage() {
   const [fileInputKey, setFileInputKey] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const [isCleaning, setIsCleaning] = useState(false);
-  const [cleanupMessage, setCleanupMessage] = useState('');
 
   useEffect(
     () => () => {
@@ -195,7 +191,6 @@ export default function AddRecordPage() {
           );
           if (imageRequestRef.current !== requestId) return;
           setScanImageFile(correctedScan);
-          setCleanedImageFile(null);
           showImage(correctedScan, 'scan');
         } catch {
           setScanImageFile(fallbackScan);
@@ -244,8 +239,6 @@ export default function AddRecordPage() {
     setConfidence(null);
     setDetectedCorners(null);
     setSubmitState({ type: 'idle', message: '' });
-    setCleanupMessage('');
-    setCleanedImageFile(null);
 
     try {
       const prepared = await prepareRecordPhoto(file);
@@ -279,29 +272,6 @@ export default function AddRecordPage() {
     );
   }
 
-  async function cleanScannedPhoto() {
-    if (!scanImageFile) return;
-    if (cleanedImageFile) {
-      showImage(cleanedImageFile, 'cleaned');
-      return;
-    }
-
-    setIsCleaning(true);
-    setCleanupMessage('正在改善光線、色彩與清晰度…');
-    try {
-      const cleaned = await createCleanedRecordPhoto(scanImageFile);
-      setCleanedImageFile(cleaned);
-      showImage(cleaned, 'cleaned');
-      setCleanupMessage('清理完成。這個版本會在上架時使用。');
-    } catch (error) {
-      setCleanupMessage(
-        error instanceof Error ? error.message : '照片清理失敗，請再試一次。',
-      );
-    } finally {
-      setIsCleaning(false);
-    }
-  }
-
   function resetForm() {
     imageRequestRef.current += 1;
     formRef.current?.reset();
@@ -311,7 +281,6 @@ export default function AddRecordPage() {
     setImageFile(null);
     setOriginalImageFile(null);
     setScanImageFile(null);
-    setCleanedImageFile(null);
     setImageMode('scan');
     if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
     previewUrlRef.current = '';
@@ -323,8 +292,6 @@ export default function AddRecordPage() {
     setDetectedCorners(null);
     setScanEditorOpen(false);
     setIsOptimizing(false);
-    setIsCleaning(false);
-    setCleanupMessage('');
     setFileInputKey((key) => key + 1);
     setSubmitState({ type: 'idle', message: '' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -387,7 +354,6 @@ export default function AddRecordPage() {
     setImageFile(null);
     setOriginalImageFile(null);
     setScanImageFile(null);
-    setCleanedImageFile(null);
     setImageMode('scan');
     if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
     previewUrlRef.current = '';
@@ -399,8 +365,6 @@ export default function AddRecordPage() {
     setDetectedCorners(null);
     setScanEditorOpen(false);
     setIsOptimizing(false);
-    setIsCleaning(false);
-    setCleanupMessage('');
     setFileInputKey((key) => key + 1);
     setSubmitState({ type: 'success', message });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -408,7 +372,7 @@ export default function AddRecordPage() {
 
   const isSaving = submitState.type === 'saving';
   const isAnalyzing = analysisState.type === 'analyzing';
-  const isBusy = isSaving || isOptimizing || isAnalyzing || isCleaning;
+  const isBusy = isSaving || isOptimizing || isAnalyzing;
   const needsIndex = category === 'classical' || category === 'jazz';
   const needsReview = (field: ConfidenceKey) =>
     analysisState.type === 'success' &&
@@ -582,24 +546,6 @@ export default function AddRecordPage() {
                   <ScanLine aria-hidden="true" /> 掃描版
                 </button>
                 <button
-                  aria-pressed={imageMode === 'cleaned'}
-                  disabled={!scanImageFile || isBusy}
-                  onClick={() => {
-                    void cleanScannedPhoto();
-                  }}
-                  type="button"
-                >
-                  {isCleaning ? (
-                    <LoaderCircle
-                      className="cleanup-spinner"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <Sparkles aria-hidden="true" />
-                  )}
-                  {isCleaning ? '正在清理…' : '一鍵清理'}
-                </button>
-                <button
                   aria-pressed={imageMode === 'original'}
                   disabled={!originalImageFile}
                   onClick={() => {
@@ -619,13 +565,8 @@ export default function AddRecordPage() {
               >
                 <SlidersHorizontal aria-hidden="true" /> 調整裁切與色彩
               </button>
-              {cleanupMessage ? (
-                <p aria-live="polite" className="photo-cleanup-status">
-                  {cleanupMessage}
-                </p>
-              ) : null}
               <p className="photo-tip">
-                先確認「掃描版」已正確裁切，再按「一鍵清理」。上架時只會使用目前顯示的版本。
+                若自動裁切不正確，請選擇「原始照片」或使用「調整裁切與色彩」。上架時只會使用目前顯示的版本。
               </p>
             </>
           ) : (
@@ -926,8 +867,6 @@ export default function AddRecordPage() {
           initialCorners={detectedCorners}
           onApply={(scan) => {
             setScanImageFile(scan);
-            setCleanedImageFile(null);
-            setCleanupMessage('');
             showImage(scan, 'scan');
             setSubmitState({
               type: 'success',
