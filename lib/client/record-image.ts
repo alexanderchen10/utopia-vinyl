@@ -31,7 +31,8 @@ export type PreparedRecordImages = {
 function canvasToJpeg(canvas: HTMLCanvasElement, quality: number) {
   return new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
-      (blob) => blob ? resolve(blob) : reject(new Error('無法處理這張照片。')),
+      (blob) =>
+        blob ? resolve(blob) : reject(new Error('無法處理這張照片。')),
       'image/jpeg',
       quality,
     );
@@ -59,7 +60,13 @@ async function canvasToStoredFile(canvas: HTMLCanvasElement, baseName: string) {
     resized.height = Math.round(workingCanvas.height * 0.84);
     const resizedContext = resized.getContext('2d');
     if (!resizedContext) throw new Error('無法處理這張照片。');
-    resizedContext.drawImage(workingCanvas, 0, 0, resized.width, resized.height);
+    resizedContext.drawImage(
+      workingCanvas,
+      0,
+      0,
+      resized.width,
+      resized.height,
+    );
     workingCanvas = resized;
   }
 
@@ -100,20 +107,39 @@ function drawWithGentleCleanup(
   context.filter = 'none';
 }
 
-export async function prepareRecordPhoto(file: File): Promise<PreparedRecordImages> {
-  const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+export async function prepareRecordPhoto(
+  file: File,
+): Promise<PreparedRecordImages> {
+  const bitmap = await createImageBitmap(file, {
+    imageOrientation: 'from-image',
+  });
 
   try {
     const baseName = file.name.replace(/\.[^.]+$/, '') || 'record-cover';
-    const originalScale = Math.min(1, longestPreparedSide / Math.max(bitmap.width, bitmap.height));
+    const originalScale = Math.min(
+      1,
+      longestPreparedSide / Math.max(bitmap.width, bitmap.height),
+    );
     const originalCanvas = document.createElement('canvas');
-    originalCanvas.width = Math.max(1, Math.round(bitmap.width * originalScale));
-    originalCanvas.height = Math.max(1, Math.round(bitmap.height * originalScale));
+    originalCanvas.width = Math.max(
+      1,
+      Math.round(bitmap.width * originalScale),
+    );
+    originalCanvas.height = Math.max(
+      1,
+      Math.round(bitmap.height * originalScale),
+    );
     const originalContext = originalCanvas.getContext('2d');
     if (!originalContext) throw new Error('無法處理這張照片。');
     originalContext.fillStyle = '#ffffff';
     originalContext.fillRect(0, 0, originalCanvas.width, originalCanvas.height);
-    originalContext.drawImage(bitmap, 0, 0, originalCanvas.width, originalCanvas.height);
+    originalContext.drawImage(
+      bitmap,
+      0,
+      0,
+      originalCanvas.width,
+      originalCanvas.height,
+    );
 
     const cropSize = Math.min(bitmap.width, bitmap.height);
     const cropX = Math.round((bitmap.width - cropSize) / 2);
@@ -146,24 +172,40 @@ export async function prepareRecordPhoto(file: File): Promise<PreparedRecordImag
 }
 
 function isFinitePoint(point: CoverPoint) {
-  return Number.isFinite(point.x) && Number.isFinite(point.y) &&
-    point.x >= 0 && point.x <= 1 && point.y >= 0 && point.y <= 1;
+  return (
+    Number.isFinite(point.x) &&
+    Number.isFinite(point.y) &&
+    point.x >= 0 &&
+    point.x <= 1 &&
+    point.y >= 0 &&
+    point.y <= 1
+  );
 }
 
 export function isUsableCoverCorners(corners: CoverCorners) {
-  const points = [corners.topLeft, corners.topRight, corners.bottomRight, corners.bottomLeft];
+  const points = [
+    corners.topLeft,
+    corners.topRight,
+    corners.bottomRight,
+    corners.bottomLeft,
+  ];
   if (!points.every(isFinitePoint)) return false;
 
-  const area = Math.abs(points.reduce((total, point, index) => {
-    const next = points[(index + 1) % points.length];
-    return total + point.x * next.y - next.x * point.y;
-  }, 0)) / 2;
+  const area =
+    Math.abs(
+      points.reduce((total, point, index) => {
+        const next = points[(index + 1) % points.length];
+        return total + point.x * next.y - next.x * point.y;
+      }, 0),
+    ) / 2;
 
-  return area >= 0.18 &&
+  return (
+    area >= 0.18 &&
     corners.topLeft.x < corners.topRight.x &&
     corners.bottomLeft.x < corners.bottomRight.x &&
     corners.topLeft.y < corners.bottomLeft.y &&
-    corners.topRight.y < corners.bottomRight.y;
+    corners.topRight.y < corners.bottomRight.y
+  );
 }
 
 function solveLinearSystem(rows: number[][]) {
@@ -171,13 +213,15 @@ function solveLinearSystem(rows: number[][]) {
   for (let column = 0; column < size; column += 1) {
     let pivot = column;
     for (let row = column + 1; row < size; row += 1) {
-      if (Math.abs(rows[row][column]) > Math.abs(rows[pivot][column])) pivot = row;
+      if (Math.abs(rows[row][column]) > Math.abs(rows[pivot][column]))
+        pivot = row;
     }
     [rows[column], rows[pivot]] = [rows[pivot], rows[column]];
     const divisor = rows[column][column];
     if (Math.abs(divisor) < 1e-10) throw new Error('無法自動校正封面。');
 
-    for (let index = column; index <= size; index += 1) rows[column][index] /= divisor;
+    for (let index = column; index <= size; index += 1)
+      rows[column][index] /= divisor;
     for (let row = 0; row < size; row += 1) {
       if (row === column) continue;
       const factor = rows[row][column];
@@ -196,7 +240,12 @@ function destinationToSourceHomography(corners: CoverCorners) {
     { x: 1, y: 1 },
     { x: 0, y: 1 },
   ];
-  const sources = [corners.topLeft, corners.topRight, corners.bottomRight, corners.bottomLeft];
+  const sources = [
+    corners.topLeft,
+    corners.topRight,
+    corners.bottomRight,
+    corners.bottomLeft,
+  ];
   const rows: number[][] = [];
 
   destinations.forEach(({ x, y }, index) => {
@@ -219,7 +268,10 @@ function adjustedChannels(
     const brightened = saturated * adjustments.brightness;
     return Math.max(
       0,
-      Math.min(255, Math.round((brightened - 128) * adjustments.contrast + 128)),
+      Math.min(
+        255,
+        Math.round((brightened - 128) * adjustments.contrast + 128),
+      ),
     );
   };
 
@@ -232,18 +284,30 @@ export async function createPerspectiveScan(
   adjustments: ScanAdjustments = defaultScanAdjustments,
 ) {
   if (!isUsableCoverCorners(corners)) throw new Error('封面邊緣不夠清楚。');
-  const bitmap = await createImageBitmap(sourceFile, { imageOrientation: 'from-image' });
+  const bitmap = await createImageBitmap(sourceFile, {
+    imageOrientation: 'from-image',
+  });
 
   try {
     const sourceCanvas = document.createElement('canvas');
     sourceCanvas.width = bitmap.width;
     sourceCanvas.height = bitmap.height;
-    const sourceContext = sourceCanvas.getContext('2d', { willReadFrequently: true });
+    const sourceContext = sourceCanvas.getContext('2d', {
+      willReadFrequently: true,
+    });
     if (!sourceContext) throw new Error('無法處理這張照片。');
     sourceContext.drawImage(bitmap, 0, 0);
-    const sourcePixels = sourceContext.getImageData(0, 0, bitmap.width, bitmap.height).data;
+    const sourcePixels = sourceContext.getImageData(
+      0,
+      0,
+      bitmap.width,
+      bitmap.height,
+    ).data;
 
-    const outputSize = Math.min(scanSide, Math.max(720, Math.min(bitmap.width, bitmap.height)));
+    const outputSize = Math.min(
+      scanSide,
+      Math.max(720, Math.min(bitmap.width, bitmap.height)),
+    );
     const outputCanvas = document.createElement('canvas');
     outputCanvas.width = outputSize;
     outputCanvas.height = outputSize;
@@ -258,10 +322,24 @@ export async function createPerspectiveScan(
       for (let outputX = 0; outputX < outputSize; outputX += 1) {
         const x = outputX / Math.max(1, outputSize - 1);
         const divisor = homography[6] * x + homography[7] * y + 1;
-        const normalizedSourceX = (homography[0] * x + homography[1] * y + homography[2]) / divisor;
-        const normalizedSourceY = (homography[3] * x + homography[4] * y + homography[5]) / divisor;
-        const sourceX = Math.max(0, Math.min(bitmap.width - 1, Math.round(normalizedSourceX * (bitmap.width - 1))));
-        const sourceY = Math.max(0, Math.min(bitmap.height - 1, Math.round(normalizedSourceY * (bitmap.height - 1))));
+        const normalizedSourceX =
+          (homography[0] * x + homography[1] * y + homography[2]) / divisor;
+        const normalizedSourceY =
+          (homography[3] * x + homography[4] * y + homography[5]) / divisor;
+        const sourceX = Math.max(
+          0,
+          Math.min(
+            bitmap.width - 1,
+            Math.round(normalizedSourceX * (bitmap.width - 1)),
+          ),
+        );
+        const sourceY = Math.max(
+          0,
+          Math.min(
+            bitmap.height - 1,
+            Math.round(normalizedSourceY * (bitmap.height - 1)),
+          ),
+        );
         const sourceIndex = (sourceY * bitmap.width + sourceX) * 4;
         const outputIndex = (outputY * outputSize + outputX) * 4;
         const [red, green, blue] = adjustedChannels(
@@ -278,8 +356,187 @@ export async function createPerspectiveScan(
     }
 
     outputContext.putImageData(outputImage, 0, 0);
-    const baseName = sourceFile.name.replace(/-original\.jpg$/i, '').replace(/\.[^.]+$/, '') || 'record-cover';
+    const baseName =
+      sourceFile.name.replace(/-original\.jpg$/i, '').replace(/\.[^.]+$/, '') ||
+      'record-cover';
     return canvasToStoredFile(outputCanvas, `${baseName}-scan`);
+  } finally {
+    bitmap.close();
+  }
+}
+
+function histogramPercentile(
+  histogram: Uint32Array,
+  total: number,
+  percentile: number,
+) {
+  const target = total * percentile;
+  let count = 0;
+  for (let value = 0; value < histogram.length; value += 1) {
+    count += histogram[value];
+    if (count >= target) return value;
+  }
+  return 255;
+}
+
+function clampChannel(value: number) {
+  return Math.max(0, Math.min(255, Math.round(value)));
+}
+
+/**
+ * Gives an already-cropped cover the restrained tonal balance and crispness of
+ * a flatbed scan. This deliberately avoids generative filling so printed text
+ * and artwork are never invented or changed.
+ */
+export async function createCleanedRecordPhoto(sourceFile: File) {
+  const bitmap = await createImageBitmap(sourceFile, {
+    imageOrientation: 'from-image',
+  });
+
+  try {
+    const cropSize = Math.min(bitmap.width, bitmap.height);
+    const sourceX = Math.round((bitmap.width - cropSize) / 2);
+    const sourceY = Math.round((bitmap.height - cropSize) / 2);
+    const outputSize = Math.min(scanSide, Math.max(720, cropSize));
+    const canvas = document.createElement('canvas');
+    canvas.width = outputSize;
+    canvas.height = outputSize;
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    if (!context) throw new Error('無法清理這張照片。');
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = 'high';
+    context.drawImage(
+      bitmap,
+      sourceX,
+      sourceY,
+      cropSize,
+      cropSize,
+      0,
+      0,
+      outputSize,
+      outputSize,
+    );
+
+    const image = context.getImageData(0, 0, outputSize, outputSize);
+    const source = image.data;
+    const histogram = new Uint32Array(256);
+    let neutralRed = 0;
+    let neutralGreen = 0;
+    let neutralBlue = 0;
+    let neutralCount = 0;
+
+    for (let index = 0; index < source.length; index += 4) {
+      const red = source[index];
+      const green = source[index + 1];
+      const blue = source[index + 2];
+      const luminance = Math.round(
+        red * 0.2126 + green * 0.7152 + blue * 0.0722,
+      );
+      histogram[luminance] += 1;
+
+      const highest = Math.max(red, green, blue);
+      const lowest = Math.min(red, green, blue);
+      if (luminance >= 145 && luminance <= 245 && highest - lowest <= 24) {
+        neutralRed += red;
+        neutralGreen += green;
+        neutralBlue += blue;
+        neutralCount += 1;
+      }
+    }
+
+    const pixelCount = outputSize * outputSize;
+    const low = Math.min(20, histogramPercentile(histogram, pixelCount, 0.008));
+    const high = Math.max(
+      235,
+      histogramPercentile(histogram, pixelCount, 0.994),
+    );
+    const tonalRange = Math.max(160, high - low);
+
+    let redGain = 1;
+    let greenGain = 1;
+    let blueGain = 1;
+    if (neutralCount >= pixelCount * 0.003) {
+      const redAverage = neutralRed / neutralCount;
+      const greenAverage = neutralGreen / neutralCount;
+      const blueAverage = neutralBlue / neutralCount;
+      const target = (redAverage + greenAverage + blueAverage) / 3;
+      redGain = Math.max(
+        0.94,
+        Math.min(1.06, target / Math.max(1, redAverage)),
+      );
+      greenGain = Math.max(
+        0.94,
+        Math.min(1.06, target / Math.max(1, greenAverage)),
+      );
+      blueGain = Math.max(
+        0.94,
+        Math.min(1.06, target / Math.max(1, blueAverage)),
+      );
+    }
+
+    const toned = new Uint8ClampedArray(source.length);
+    for (let index = 0; index < source.length; index += 4) {
+      const balancedRed = source[index] * redGain;
+      const balancedGreen = source[index + 1] * greenGain;
+      const balancedBlue = source[index + 2] * blueGain;
+      const luminance =
+        balancedRed * 0.2126 + balancedGreen * 0.7152 + balancedBlue * 0.0722;
+      const normalized = Math.max(
+        0,
+        Math.min(1, (luminance - low) / tonalRange),
+      );
+      const cleanedLuminance = Math.pow(normalized, 0.98) * 255;
+      const contrastLuminance = (cleanedLuminance - 128) * 1.045 + 128;
+      const luminanceScale = contrastLuminance / Math.max(1, luminance);
+      const scaledRed = balancedRed * luminanceScale;
+      const scaledGreen = balancedGreen * luminanceScale;
+      const scaledBlue = balancedBlue * luminanceScale;
+      const scaledLuminance =
+        scaledRed * 0.2126 + scaledGreen * 0.7152 + scaledBlue * 0.0722;
+
+      toned[index] = clampChannel(
+        scaledLuminance + (scaledRed - scaledLuminance) * 1.035,
+      );
+      toned[index + 1] = clampChannel(
+        scaledLuminance + (scaledGreen - scaledLuminance) * 1.035,
+      );
+      toned[index + 2] = clampChannel(
+        scaledLuminance + (scaledBlue - scaledLuminance) * 1.035,
+      );
+      toned[index + 3] = 255;
+    }
+
+    // A light unsharp mask restores label lettering after phone-camera resizing.
+    const cleaned = image.data;
+    cleaned.set(toned);
+    for (let y = 1; y < outputSize - 1; y += 1) {
+      for (let x = 1; x < outputSize - 1; x += 1) {
+        const index = (y * outputSize + x) * 4;
+        for (let channel = 0; channel < 3; channel += 1) {
+          const value = toned[index + channel];
+          const neighborAverage =
+            (toned[index - 4 + channel] +
+              toned[index + 4 + channel] +
+              toned[index - outputSize * 4 + channel] +
+              toned[index + outputSize * 4 + channel]) /
+            4;
+          const detail = value - neighborAverage;
+          cleaned[index + channel] =
+            Math.abs(detail) < 2
+              ? value
+              : clampChannel(
+                  value + Math.max(-22, Math.min(22, detail)) * 0.22,
+                );
+        }
+      }
+    }
+
+    context.putImageData(image, 0, 0);
+    const baseName =
+      sourceFile.name
+        .replace(/-(?:original|scan|cleaned)\.jpg$/i, '')
+        .replace(/\.[^.]+$/, '') || 'record-cover';
+    return canvasToStoredFile(canvas, `${baseName}-cleaned`);
   } finally {
     bitmap.close();
   }

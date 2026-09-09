@@ -21,12 +21,17 @@ import {
 
 import { PhotoScanEditor } from '@/components/admin/photo-scan-editor';
 import {
+  createCleanedRecordPhoto,
   createPerspectiveScan,
   isUsableCoverCorners,
   prepareRecordPhoto,
   type CoverCorners,
 } from '@/lib/client/record-image';
-import { categoryLabels, type RecordCategory, type RecordStatus } from '@/lib/catalog';
+import {
+  categoryLabels,
+  type RecordCategory,
+  type RecordStatus,
+} from '@/lib/catalog';
 
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const acceptedImages = ['image/jpeg', 'image/png', 'image/webp'];
@@ -72,6 +77,8 @@ type SubmitState =
   | { type: 'success'; message: string }
   | { type: 'error'; message: string };
 
+type ImageMode = 'scan' | 'cleaned' | 'original';
+
 export default function AddRecordPage() {
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -80,7 +87,8 @@ export default function AddRecordPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [originalImageFile, setOriginalImageFile] = useState<File | null>(null);
   const [scanImageFile, setScanImageFile] = useState<File | null>(null);
-  const [imageMode, setImageMode] = useState<'scan' | 'original'>('scan');
+  const [cleanedImageFile, setCleanedImageFile] = useState<File | null>(null);
+  const [imageMode, setImageMode] = useState<ImageMode>('scan');
   const [imagePreview, setImagePreview] = useState('');
   const [originalImageName, setOriginalImageName] = useState('');
   const [fields, setFields] = useState<RecordFields>(emptyFields);
@@ -88,19 +96,32 @@ export default function AddRecordPage() {
   const [category, setCategory] = useState<RecordCategory>('classical');
   const [confidence, setConfidence] = useState<ConfidenceScores | null>(null);
   const [analysisNotes, setAnalysisNotes] = useState<string[]>([]);
-  const [analysisState, setAnalysisState] = useState<AnalysisState>({ type: 'idle', message: '' });
-  const [submitState, setSubmitState] = useState<SubmitState>({ type: 'idle', message: '' });
-  const [detectedCorners, setDetectedCorners] = useState<CoverCorners | null>(null);
+  const [analysisState, setAnalysisState] = useState<AnalysisState>({
+    type: 'idle',
+    message: '',
+  });
+  const [submitState, setSubmitState] = useState<SubmitState>({
+    type: 'idle',
+    message: '',
+  });
+  const [detectedCorners, setDetectedCorners] = useState<CoverCorners | null>(
+    null,
+  );
   const [scanEditorOpen, setScanEditorOpen] = useState(false);
   const [fileInputKey, setFileInputKey] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isCleaning, setIsCleaning] = useState(false);
+  const [cleanupMessage, setCleanupMessage] = useState('');
 
-  useEffect(() => () => {
-    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    },
+    [],
+  );
 
-  function showImage(file: File, mode: 'scan' | 'original') {
+  function showImage(file: File, mode: ImageMode) {
     if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
     const previewUrl = URL.createObjectURL(file);
     previewUrlRef.current = previewUrl;
@@ -113,7 +134,11 @@ export default function AddRecordPage() {
     setFields((current) => ({ ...current, [field]: value }));
   }
 
-  async function analyzeImage(originalFile: File, fallbackScan: File, requestId: number) {
+  async function analyzeImage(
+    originalFile: File,
+    fallbackScan: File,
+    requestId: number,
+  ) {
     setAnalysisState({ type: 'analyzing', message: '正在讀取封面上的資料…' });
     setConfidence(null);
     setAnalysisNotes([]);
@@ -164,9 +189,13 @@ export default function AddRecordPage() {
       ) {
         setDetectedCorners(record.coverCorners);
         try {
-          const correctedScan = await createPerspectiveScan(originalFile, record.coverCorners);
+          const correctedScan = await createPerspectiveScan(
+            originalFile,
+            record.coverCorners,
+          );
           if (imageRequestRef.current !== requestId) return;
           setScanImageFile(correctedScan);
+          setCleanedImageFile(null);
           showImage(correctedScan, 'scan');
         } catch {
           setScanImageFile(fallbackScan);
@@ -182,7 +211,10 @@ export default function AddRecordPage() {
       if (imageRequestRef.current !== requestId) return;
       setAnalysisState({
         type: 'error',
-        message: error instanceof Error ? error.message : '自動辨識沒有讀取成功，請手動填寫。',
+        message:
+          error instanceof Error
+            ? error.message
+            : '自動辨識沒有讀取成功，請手動填寫。',
       });
     }
   }
@@ -190,11 +222,17 @@ export default function AddRecordPage() {
   async function chooseImage(file?: File) {
     if (!file) return;
     if (!acceptedImages.includes(file.type)) {
-      setSubmitState({ type: 'error', message: '請選擇 JPG、PNG 或 WebP 照片。' });
+      setSubmitState({
+        type: 'error',
+        message: '請選擇 JPG、PNG 或 WebP 照片。',
+      });
       return;
     }
     if (file.size > maximumOriginalImageBytes) {
-      setSubmitState({ type: 'error', message: '照片太大，請選擇小於 20 MB 的照片。' });
+      setSubmitState({
+        type: 'error',
+        message: '照片太大，請選擇小於 20 MB 的照片。',
+      });
       return;
     }
 
@@ -206,6 +244,8 @@ export default function AddRecordPage() {
     setConfidence(null);
     setDetectedCorners(null);
     setSubmitState({ type: 'idle', message: '' });
+    setCleanupMessage('');
+    setCleanedImageFile(null);
 
     try {
       const prepared = await prepareRecordPhoto(file);
@@ -221,7 +261,10 @@ export default function AddRecordPage() {
       if (imageRequestRef.current !== requestId) return;
       setSubmitState({
         type: 'error',
-        message: error instanceof Error ? error.message : '無法處理這張照片，請換一張再試。',
+        message:
+          error instanceof Error
+            ? error.message
+            : '無法處理這張照片，請換一張再試。',
       });
     } finally {
       if (imageRequestRef.current === requestId) setIsOptimizing(false);
@@ -236,6 +279,29 @@ export default function AddRecordPage() {
     );
   }
 
+  async function cleanScannedPhoto() {
+    if (!scanImageFile) return;
+    if (cleanedImageFile) {
+      showImage(cleanedImageFile, 'cleaned');
+      return;
+    }
+
+    setIsCleaning(true);
+    setCleanupMessage('正在改善光線、色彩與清晰度…');
+    try {
+      const cleaned = await createCleanedRecordPhoto(scanImageFile);
+      setCleanedImageFile(cleaned);
+      showImage(cleaned, 'cleaned');
+      setCleanupMessage('清理完成。這個版本會在上架時使用。');
+    } catch (error) {
+      setCleanupMessage(
+        error instanceof Error ? error.message : '照片清理失敗，請再試一次。',
+      );
+    } finally {
+      setIsCleaning(false);
+    }
+  }
+
   function resetForm() {
     imageRequestRef.current += 1;
     formRef.current?.reset();
@@ -245,6 +311,7 @@ export default function AddRecordPage() {
     setImageFile(null);
     setOriginalImageFile(null);
     setScanImageFile(null);
+    setCleanedImageFile(null);
     setImageMode('scan');
     if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
     previewUrlRef.current = '';
@@ -256,6 +323,8 @@ export default function AddRecordPage() {
     setDetectedCorners(null);
     setScanEditorOpen(false);
     setIsOptimizing(false);
+    setIsCleaning(false);
+    setCleanupMessage('');
     setFileInputKey((key) => key + 1);
     setSubmitState({ type: 'idle', message: '' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -295,8 +364,12 @@ export default function AddRecordPage() {
       }
       if (!response.ok) throw new Error(result.message || '暫時無法儲存唱片。');
 
-      setSubmitState({ type: 'success', message: result.message ?? '唱片已儲存。' });
-      if (status === 'published') resetFormAfterSuccess(result.message ?? '唱片已成功上架！');
+      setSubmitState({
+        type: 'success',
+        message: result.message ?? '唱片已儲存。',
+      });
+      if (status === 'published')
+        resetFormAfterSuccess(result.message ?? '唱片已成功上架！');
     } catch (error) {
       setSubmitState({
         type: 'error',
@@ -314,6 +387,7 @@ export default function AddRecordPage() {
     setImageFile(null);
     setOriginalImageFile(null);
     setScanImageFile(null);
+    setCleanedImageFile(null);
     setImageMode('scan');
     if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
     previewUrlRef.current = '';
@@ -325,6 +399,8 @@ export default function AddRecordPage() {
     setDetectedCorners(null);
     setScanEditorOpen(false);
     setIsOptimizing(false);
+    setIsCleaning(false);
+    setCleanupMessage('');
     setFileInputKey((key) => key + 1);
     setSubmitState({ type: 'success', message });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -332,47 +408,81 @@ export default function AddRecordPage() {
 
   const isSaving = submitState.type === 'saving';
   const isAnalyzing = analysisState.type === 'analyzing';
-  const isBusy = isSaving || isOptimizing || isAnalyzing;
+  const isBusy = isSaving || isOptimizing || isAnalyzing || isCleaning;
   const needsIndex = category === 'classical' || category === 'jazz';
   const needsReview = (field: ConfidenceKey) =>
-    analysisState.type === 'success' && confidence !== null && confidence[field] < 0.68;
+    analysisState.type === 'success' &&
+    confidence !== null &&
+    confidence[field] < 0.68;
 
   async function logout() {
-    await fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' });
+    await fetch('/api/admin/logout', {
+      method: 'POST',
+      credentials: 'same-origin',
+    });
     window.location.assign('/vinyl-login');
   }
 
   return (
     <main className="admin-page">
       <div className="admin-topline">
-        <p><LockKeyhole aria-hidden="true" /> UTOPIA VINYL 私人管理</p>
-        <button onClick={() => { void logout(); }} type="button"><LogOut aria-hidden="true" /> 登出</button>
+        <p>
+          <LockKeyhole aria-hidden="true" /> UTOPIA VINYL 私人管理
+        </p>
+        <button
+          onClick={() => {
+            void logout();
+          }}
+          type="button"
+        >
+          <LogOut aria-hidden="true" /> 登出
+        </button>
       </div>
 
       <header className="admin-header admin-shell">
-        <Link className="admin-brand" href="/" aria-label="回到 Utopia Vinyl 商店">
-          <Image alt="Utopia Vinyl 黑膠理想國" height={1024} priority src="/utopia-vinyl.png" width={1536} />
+        <Link
+          className="admin-brand"
+          href="/"
+          aria-label="回到 Utopia Vinyl 商店"
+        >
+          <Image
+            alt="Utopia Vinyl 黑膠理想國"
+            height={1024}
+            priority
+            src="/utopia-vinyl.png"
+            width={1536}
+          />
         </Link>
         <div className="admin-heading">
           <p>唱片管理</p>
           <h1>新增唱片</h1>
           <span>填完資料後，就可以直接放進商店。</span>
         </div>
-        <Link className="back-to-shop" href="/"><ArrowLeft aria-hidden="true" /> 回到商店</Link>
+        <Link className="back-to-shop" href="/">
+          <ArrowLeft aria-hidden="true" /> 回到商店
+        </Link>
       </header>
 
       <nav aria-label="唱片管理功能" className="admin-section-nav">
         <div className="admin-shell">
-          <Link aria-current="page" href="/admin">新增唱片</Link>
+          <Link aria-current="page" href="/admin">
+            新增唱片
+          </Link>
           <Link href="/admin/records">管理唱片</Link>
         </div>
       </nav>
 
       <div className="admin-steps" aria-label="新增唱片步驟">
         <div className="admin-shell">
-          <p><span>1</span> 加入封面照片</p>
-          <p><span>2</span> 填寫唱片資料</p>
-          <p><span>3</span> 儲存或上架</p>
+          <p>
+            <span>1</span> 加入封面照片
+          </p>
+          <p>
+            <span>2</span> 填寫唱片資料
+          </p>
+          <p>
+            <span>3</span> 儲存或上架
+          </p>
         </div>
       </div>
 
@@ -399,7 +509,9 @@ export default function AddRecordPage() {
             className="sr-only"
             key={fileInputKey}
             name="imagePicker"
-            onChange={(event) => { void chooseImage(event.target.files?.[0]); }}
+            onChange={(event) => {
+              void chooseImage(event.target.files?.[0]);
+            }}
             ref={fileInputRef}
             type="file"
           />
@@ -407,7 +519,10 @@ export default function AddRecordPage() {
             className={`photo-drop ${imagePreview ? 'has-photo' : ''} ${imageMode === 'original' ? 'show-original' : ''} ${isDragging ? 'is-dragging' : ''}`}
             disabled={isOptimizing}
             onClick={() => fileInputRef.current?.click()}
-            onDragEnter={(event) => { event.preventDefault(); setIsDragging(true); }}
+            onDragEnter={(event) => {
+              event.preventDefault();
+              setIsDragging(true);
+            }}
             onDragOver={(event) => event.preventDefault()}
             onDragLeave={() => setIsDragging(false)}
             onDrop={(event) => {
@@ -419,18 +534,30 @@ export default function AddRecordPage() {
           >
             {isOptimizing ? (
               <div className="photo-prompt photo-processing">
-                <div><LoaderCircle aria-hidden="true" /></div>
+                <div>
+                  <LoaderCircle aria-hidden="true" />
+                </div>
                 <strong>正在整理照片…</strong>
                 <span>正在裁切封面並調整光線。</span>
               </div>
             ) : imagePreview ? (
               <>
-                <Image alt="唱片封面預覽" fill sizes="(max-width: 780px) calc(100vw - 32px), 480px" src={imagePreview} unoptimized />
-                <span className="replace-photo"><ImagePlus aria-hidden="true" /> 更換照片</span>
+                <Image
+                  alt="唱片封面預覽"
+                  fill
+                  sizes="(max-width: 780px) calc(100vw - 32px), 480px"
+                  src={imagePreview}
+                  unoptimized
+                />
+                <span className="replace-photo">
+                  <ImagePlus aria-hidden="true" /> 更換照片
+                </span>
               </>
             ) : (
               <div className="photo-prompt">
-                <div><ImagePlus aria-hidden="true" /></div>
+                <div>
+                  <ImagePlus aria-hidden="true" />
+                </div>
                 <strong>點這裡選擇照片</strong>
                 <span>也可以把照片拖到這個方框</span>
                 <small>JPG、PNG 或 WebP・原圖最大 20 MB</small>
@@ -440,20 +567,49 @@ export default function AddRecordPage() {
 
           {imageFile ? (
             <>
-              <div className="photo-ready"><Check aria-hidden="true" /> 照片已整理完成：{originalImageName}</div>
+              <div className="photo-ready">
+                <Check aria-hidden="true" /> 照片已整理完成：{originalImageName}
+              </div>
               <div className="scan-choice" aria-label="選擇封面版本">
                 <button
                   aria-pressed={imageMode === 'scan'}
                   disabled={!scanImageFile}
-                  onClick={() => { if (scanImageFile) showImage(scanImageFile, 'scan'); }}
+                  onClick={() => {
+                    if (scanImageFile) showImage(scanImageFile, 'scan');
+                  }}
                   type="button"
-                ><ScanLine aria-hidden="true" /> 掃描版</button>
+                >
+                  <ScanLine aria-hidden="true" /> 掃描版
+                </button>
+                <button
+                  aria-pressed={imageMode === 'cleaned'}
+                  disabled={!scanImageFile || isBusy}
+                  onClick={() => {
+                    void cleanScannedPhoto();
+                  }}
+                  type="button"
+                >
+                  {isCleaning ? (
+                    <LoaderCircle
+                      className="cleanup-spinner"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Sparkles aria-hidden="true" />
+                  )}
+                  {isCleaning ? '正在清理…' : '一鍵清理'}
+                </button>
                 <button
                   aria-pressed={imageMode === 'original'}
                   disabled={!originalImageFile}
-                  onClick={() => { if (originalImageFile) showImage(originalImageFile, 'original'); }}
+                  onClick={() => {
+                    if (originalImageFile)
+                      showImage(originalImageFile, 'original');
+                  }}
                   type="button"
-                >原始照片</button>
+                >
+                  原始照片
+                </button>
               </div>
               <button
                 className="open-scan-editor"
@@ -463,18 +619,36 @@ export default function AddRecordPage() {
               >
                 <SlidersHorizontal aria-hidden="true" /> 調整裁切與色彩
               </button>
-              <p className="photo-tip">若自動裁切不正確，請選擇「原始照片」。上架時只會使用目前顯示的版本。</p>
+              {cleanupMessage ? (
+                <p aria-live="polite" className="photo-cleanup-status">
+                  {cleanupMessage}
+                </p>
+              ) : null}
+              <p className="photo-tip">
+                先確認「掃描版」已正確裁切，再按「一鍵清理」。上架時只會使用目前顯示的版本。
+              </p>
             </>
           ) : (
-            <p className="photo-tip">小提醒：讓整張封面都在照片內，四個角落越清楚，自動掃描就越準確。</p>
+            <p className="photo-tip">
+              小提醒：讓整張封面都在照片內，四個角落越清楚，自動掃描就越準確。
+            </p>
           )}
 
           {analysisState.type !== 'idle' ? (
-            <section className={`analysis-card ${analysisState.type}`} aria-live="polite">
+            <section
+              className={`analysis-card ${analysisState.type}`}
+              aria-live="polite"
+            >
               <div className="analysis-icon">
-                {analysisState.type === 'analyzing' ? <LoaderCircle aria-hidden="true" /> : null}
-                {analysisState.type === 'success' ? <Sparkles aria-hidden="true" /> : null}
-                {analysisState.type === 'error' ? <AlertTriangle aria-hidden="true" /> : null}
+                {analysisState.type === 'analyzing' ? (
+                  <LoaderCircle aria-hidden="true" />
+                ) : null}
+                {analysisState.type === 'success' ? (
+                  <Sparkles aria-hidden="true" />
+                ) : null}
+                {analysisState.type === 'error' ? (
+                  <AlertTriangle aria-hidden="true" />
+                ) : null}
               </div>
               <div>
                 <strong>
@@ -483,15 +657,28 @@ export default function AddRecordPage() {
                   {analysisState.type === 'error' ? '請手動檢查資料' : null}
                 </strong>
                 <p>{analysisState.message}</p>
-                {analysisState.type === 'success' && typeof analysisState.remainingToday === 'number' ? (
-                  <small>今天還可免費辨識 {analysisState.remainingToday} 張</small>
+                {analysisState.type === 'success' &&
+                typeof analysisState.remainingToday === 'number' ? (
+                  <small>
+                    今天還可免費辨識 {analysisState.remainingToday} 張
+                  </small>
                 ) : null}
               </div>
-              {analysisState.type === 'error' && originalImageFile && scanImageFile ? (
+              {analysisState.type === 'error' &&
+              originalImageFile &&
+              scanImageFile ? (
                 <button
-                  onClick={() => { void analyzeImage(originalImageFile, scanImageFile, imageRequestRef.current); }}
+                  onClick={() => {
+                    void analyzeImage(
+                      originalImageFile,
+                      scanImageFile,
+                      imageRequestRef.current,
+                    );
+                  }}
                   type="button"
-                ><RefreshCw aria-hidden="true" /> 再試一次</button>
+                >
+                  <RefreshCw aria-hidden="true" /> 再試一次
+                </button>
               ) : null}
             </section>
           ) : null}
@@ -511,16 +698,27 @@ export default function AddRecordPage() {
               <Sparkles aria-hidden="true" />
               <div>
                 <strong>請檢查自動填入的內容</strong>
-                <p>黃色欄位代表辨識結果較不確定；售價和品相需要手動選擇。確認後才按「立即上架」。</p>
+                <p>
+                  黃色欄位代表辨識結果較不確定；售價和品相需要手動選擇。確認後才按「立即上架」。
+                </p>
                 {analysisNotes.length > 0 ? (
-                  <ul>{analysisNotes.map((note) => <li key={note}>{note}</li>)}</ul>
+                  <ul>
+                    {analysisNotes.map((note) => (
+                      <li key={note}>{note}</li>
+                    ))}
+                  </ul>
                 ) : null}
               </div>
             </div>
           ) : null}
 
-          <div className={`form-field full-field ${needsReview('title') ? 'needs-review' : ''}`}>
-            <label htmlFor="title">唱片名稱 <em>必填</em>{needsReview('title') ? <span>請檢查</span> : null}</label>
+          <div
+            className={`form-field full-field ${needsReview('title') ? 'needs-review' : ''}`}
+          >
+            <label htmlFor="title">
+              唱片名稱 <em>必填</em>
+              {needsReview('title') ? <span>請檢查</span> : null}
+            </label>
             <input
               id="title"
               maxLength={180}
@@ -532,15 +730,28 @@ export default function AddRecordPage() {
             />
           </div>
 
-          <fieldset className={`category-field ${needsReview('category') ? 'needs-review' : ''}`}>
-            <legend>分類 <em>必填</em>{needsReview('category') ? <span>請檢查</span> : null}</legend>
+          <fieldset
+            className={`category-field ${needsReview('category') ? 'needs-review' : ''}`}
+          >
+            <legend>
+              分類 <em>必填</em>
+              {needsReview('category') ? <span>請檢查</span> : null}
+            </legend>
             <div className="category-choices">
-              {(Object.entries(categoryLabels) as [RecordCategory, string][]).map(([value, label]) => (
-                <label className={category === value ? 'is-selected' : ''} key={value}>
+              {(
+                Object.entries(categoryLabels) as [RecordCategory, string][]
+              ).map(([value, label]) => (
+                <label
+                  className={category === value ? 'is-selected' : ''}
+                  key={value}
+                >
                   <input
                     checked={category === value}
                     name="categoryChoice"
-                    onChange={() => { setCategory(value); setSelectedLetters([]); }}
+                    onChange={() => {
+                      setCategory(value);
+                      setSelectedLetters([]);
+                    }}
                     type="radio"
                     value={value}
                   />
@@ -551,25 +762,82 @@ export default function AddRecordPage() {
           </fieldset>
 
           <div className="form-grid">
-            <div className={`form-field ${needsReview('composers') ? 'needs-review' : ''}`}>
-              <label htmlFor="composers">作曲家{needsReview('composers') ? <span>請檢查</span> : null}</label>
-              <input id="composers" maxLength={300} name="composers" onChange={(event) => updateField('composers', event.target.value)} placeholder="例如：蕭邦、李斯特" value={fields.composers} />
+            <div
+              className={`form-field ${needsReview('composers') ? 'needs-review' : ''}`}
+            >
+              <label htmlFor="composers">
+                作曲家{needsReview('composers') ? <span>請檢查</span> : null}
+              </label>
+              <input
+                id="composers"
+                maxLength={300}
+                name="composers"
+                onChange={(event) =>
+                  updateField('composers', event.target.value)
+                }
+                placeholder="例如：蕭邦、李斯特"
+                value={fields.composers}
+              />
             </div>
-            <div className={`form-field ${needsReview('performers') ? 'needs-review' : ''}`}>
-              <label htmlFor="performers">演奏家或樂團{needsReview('performers') ? <span>請檢查</span> : null}</label>
-              <input id="performers" maxLength={300} name="performers" onChange={(event) => updateField('performers', event.target.value)} placeholder="例如：Martha Argerich" value={fields.performers} />
+            <div
+              className={`form-field ${needsReview('performers') ? 'needs-review' : ''}`}
+            >
+              <label htmlFor="performers">
+                演奏家或樂團
+                {needsReview('performers') ? <span>請檢查</span> : null}
+              </label>
+              <input
+                id="performers"
+                maxLength={300}
+                name="performers"
+                onChange={(event) =>
+                  updateField('performers', event.target.value)
+                }
+                placeholder="例如：Martha Argerich"
+                value={fields.performers}
+              />
             </div>
-            <div className={`form-field ${needsReview('label') ? 'needs-review' : ''}`}>
-              <label htmlFor="label">唱片公司{needsReview('label') ? <span>請檢查</span> : null}</label>
-              <input id="label" maxLength={120} name="label" onChange={(event) => updateField('label', event.target.value)} placeholder="例如：Deutsche Grammophon" value={fields.label} />
+            <div
+              className={`form-field ${needsReview('label') ? 'needs-review' : ''}`}
+            >
+              <label htmlFor="label">
+                唱片公司{needsReview('label') ? <span>請檢查</span> : null}
+              </label>
+              <input
+                id="label"
+                maxLength={120}
+                name="label"
+                onChange={(event) => updateField('label', event.target.value)}
+                placeholder="例如：Deutsche Grammophon"
+                value={fields.label}
+              />
             </div>
-            <div className={`form-field ${needsReview('catalogNumber') ? 'needs-review' : ''}`}>
-              <label htmlFor="catalogNumber">唱片編號{needsReview('catalogNumber') ? <span>請檢查</span> : null}</label>
-              <input id="catalogNumber" maxLength={80} name="catalogNumber" onChange={(event) => updateField('catalogNumber', event.target.value)} placeholder="例如：139 383" value={fields.catalogNumber} />
+            <div
+              className={`form-field ${needsReview('catalogNumber') ? 'needs-review' : ''}`}
+            >
+              <label htmlFor="catalogNumber">
+                唱片編號
+                {needsReview('catalogNumber') ? <span>請檢查</span> : null}
+              </label>
+              <input
+                id="catalogNumber"
+                maxLength={80}
+                name="catalogNumber"
+                onChange={(event) =>
+                  updateField('catalogNumber', event.target.value)
+                }
+                placeholder="例如：139 383"
+                value={fields.catalogNumber}
+              />
             </div>
             <div className="form-field">
               <label htmlFor="price">售價</label>
-              <input id="price" maxLength={50} name="price" placeholder="例如：NT$ 1,200" />
+              <input
+                id="price"
+                maxLength={50}
+                name="price"
+                placeholder="例如：NT$ 1,200"
+              />
             </div>
             <div className="form-field">
               <label htmlFor="condition">品相</label>
@@ -584,8 +852,13 @@ export default function AddRecordPage() {
           </div>
 
           {needsIndex ? (
-            <fieldset className={`index-field ${needsReview('indexLetters') ? 'needs-review' : ''}`}>
-              <legend>{category === 'classical' ? '作曲家' : '演奏家／樂團'} A–Z 索引{needsReview('indexLetters') ? <span>請檢查</span> : null}</legend>
+            <fieldset
+              className={`index-field ${needsReview('indexLetters') ? 'needs-review' : ''}`}
+            >
+              <legend>
+                {category === 'classical' ? '作曲家' : '演奏家／樂團'} A–Z 索引
+                {needsReview('indexLetters') ? <span>請檢查</span> : null}
+              </legend>
               <p>選擇姓名英文開頭的字母；有多位人物時可以多選。</p>
               <div className="admin-alphabet">
                 {alphabet.map((letter) => (
@@ -594,7 +867,9 @@ export default function AddRecordPage() {
                     key={letter}
                     onClick={() => toggleLetter(letter)}
                     type="button"
-                  >{letter}</button>
+                  >
+                    {letter}
+                  </button>
                 ))}
               </div>
             </fieldset>
@@ -602,7 +877,10 @@ export default function AddRecordPage() {
 
           <label aria-label="同時放進新到唱片" className="new-arrival-check">
             <input defaultChecked name="newArrival" type="checkbox" />
-            <span><strong>同時放進「新到唱片」</strong><small>建議保持勾選，客人會先在首頁看到。</small></span>
+            <span>
+              <strong>同時放進「新到唱片」</strong>
+              <small>建議保持勾選，客人會先在首頁看到。</small>
+            </span>
           </label>
 
           <div className="form-actions">
@@ -617,17 +895,25 @@ export default function AddRecordPage() {
               儲存草稿
             </button>
             <button className="publish-record" disabled={isBusy} type="submit">
-              {isSaving ? <LoaderCircle aria-hidden="true" /> : <Check aria-hidden="true" />}
+              {isSaving ? (
+                <LoaderCircle aria-hidden="true" />
+              ) : (
+                <Check aria-hidden="true" />
+              )}
               立即上架
             </button>
           </div>
 
           {submitState.type !== 'idle' ? (
             <output className={`submit-message ${submitState.type}`}>
-              {submitState.type === 'saving' ? <LoaderCircle aria-hidden="true" /> : null}
+              {submitState.type === 'saving' ? (
+                <LoaderCircle aria-hidden="true" />
+              ) : null}
               <p>{submitState.message}</p>
               {submitState.type === 'success' ? (
-                <button onClick={resetForm} type="button"><RotateCcw aria-hidden="true" /> 再新增一張</button>
+                <button onClick={resetForm} type="button">
+                  <RotateCcw aria-hidden="true" /> 再新增一張
+                </button>
               ) : null}
             </output>
           ) : null}
@@ -640,8 +926,13 @@ export default function AddRecordPage() {
           initialCorners={detectedCorners}
           onApply={(scan) => {
             setScanImageFile(scan);
+            setCleanedImageFile(null);
+            setCleanupMessage('');
             showImage(scan, 'scan');
-            setSubmitState({ type: 'success', message: '照片裁切與色彩已更新，請檢查後再上架。' });
+            setSubmitState({
+              type: 'success',
+              message: '照片裁切與色彩已更新，請檢查後再上架。',
+            });
           }}
           onOpenChange={setScanEditorOpen}
           open
