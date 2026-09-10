@@ -140,7 +140,7 @@ input:focus-visible {
 .utility-row {
   min-height: 116px;
   display: grid;
-  grid-template-columns: 190px minmax(230px, 1fr) auto;
+  grid-template-columns: 82px 164px minmax(230px, 1fr) auto;
   align-items: center;
   gap: 42px;
 }
@@ -1126,7 +1126,7 @@ footer {
 
 @media (max-width: 1100px) {
   .utility-row {
-    grid-template-columns: 125px minmax(180px, 1fr) auto;
+    grid-template-columns: 70px 128px minmax(180px, 1fr) auto;
     gap: 24px;
   }
 
