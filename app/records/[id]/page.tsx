@@ -92,7 +92,8 @@ export default function RecordPage() {
             size="icon"
             variant="ghost"
           >
-            <Menu />
+            <Menu aria-hidden="true" />
+            <span className="menu-word">MENU</span>
           </Button>
 
           <Link className="wordmark" href="/" aria-label="Utopia Vinyl 首頁">

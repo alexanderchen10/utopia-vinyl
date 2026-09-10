@@ -132,7 +132,8 @@ export default function Home() {
             size="icon"
             variant="ghost"
           >
-            <Menu />
+            <Menu aria-hidden="true" />
+            <span className="menu-word">MENU</span>
           </Button>
 
           <a className="wordmark" href="#top" aria-label="Utopia Vinyl 首頁">
