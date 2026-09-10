@@ -356,17 +356,50 @@ export default function Home() {
         </section>
       </div>
 
-      <section className="browse-strip">
-        <div className="shell browse-inner">
-          <p>
-            <span>01</span> 古典音樂按作曲家 A–Z
-          </p>
-          <p>
-            <span>02</span> 爵士音樂按演奏家／樂團 A–Z
-          </p>
-          <p>
-            <span>03</span> 流行與臺灣黑膠獨立分類
-          </p>
+      <section className="reviews-section" aria-labelledby="reviews-title">
+        <div className="shell">
+          <div className="reviews-heading">
+            <div>
+              <p className="eyebrow">示意評論・之後可替換</p>
+              <h2 id="reviews-title">收藏家的分享</h2>
+            </div>
+            <p>每一張唱片，都有一段值得慢慢聆聽的故事。</p>
+          </div>
+          <div className="review-grid">
+            <figure className="review-card">
+              <blockquote>
+                「封面品況和唱片資料整理得很清楚，很快就找到想收藏的版本。」
+              </blockquote>
+              <figcaption>
+                <span className="review-stars" aria-label="五顆星">
+                  ★★★★★
+                </span>
+                <cite>林先生・古典樂收藏者</cite>
+              </figcaption>
+            </figure>
+            <figure className="review-card">
+              <blockquote>
+                「喜歡這裡慢慢瀏覽的感覺，每次回來都能發現新的聲音。」
+              </blockquote>
+              <figcaption>
+                <span className="review-stars" aria-label="五顆星">
+                  ★★★★★
+                </span>
+                <cite>陳小姐・黑膠愛好者</cite>
+              </figcaption>
+            </figure>
+            <figure className="review-card">
+              <blockquote>
+                「從爵士到臺灣黑膠，分類很直覺，挑唱片變成一件很享受的事。」
+              </blockquote>
+              <figcaption>
+                <span className="review-stars" aria-label="五顆星">
+                  ★★★★★
+                </span>
+                <cite>王先生・樂迷</cite>
+              </figcaption>
+            </figure>
+          </div>
         </div>
       </section>
 
