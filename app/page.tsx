@@ -7,7 +7,6 @@ import {
   ChevronDown,
   Disc3,
   Heart,
-  Menu,
   Search,
   ShoppingBag,
   SlidersHorizontal,
@@ -41,7 +40,6 @@ export default function Home() {
   const [selected, setSelected] = useState('new-arrivals');
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [mobileOpen, setMobileOpen] = useState(false);
   const selectedNav =
     navigation.find((item) => item.id === selected) ?? navigation[0];
   const hasAlphabet = selected === 'classical' || selected === 'jazz';
@@ -110,7 +108,6 @@ export default function Home() {
   function selectCollection(id: string) {
     setSelected(id);
     setSelectedLetter(null);
-    setMobileOpen(false);
     document
       .querySelector('.collection-heading')
       ?.scrollIntoView({ behavior: 'smooth' });
@@ -124,18 +121,6 @@ export default function Home() {
 
       <header className="site-header">
         <div className="utility-row shell">
-          <Button
-            aria-expanded={mobileOpen}
-            aria-label="開啟選單"
-            className="mobile-menu"
-            onClick={() => setMobileOpen((open) => !open)}
-            size="icon"
-            variant="ghost"
-          >
-            <Menu aria-hidden="true" />
-            <span className="menu-word">MENU</span>
-          </Button>
-
           <a className="wordmark" href="#top" aria-label="Utopia Vinyl 首頁">
             <Image
               alt="Utopia Vinyl 黑膠理想國"
@@ -174,7 +159,7 @@ export default function Home() {
         </div>
 
         <nav
-          className={`category-nav ${mobileOpen ? 'is-open' : ''}`}
+          className="category-nav"
           aria-label="主要分類"
         >
           <div className="category-inner shell">

@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   ChevronDown,
   Heart,
-  Menu,
   Minus,
   Plus,
   Search,
@@ -35,7 +34,6 @@ export default function RecordPage() {
   const recordId = params?.id;
   const [records, setRecords] = useState<VinylRecord[]>(initialRecords);
   const [loading, setLoading] = useState(true);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [purchaseMessage, setPurchaseMessage] = useState('');
 
@@ -84,18 +82,6 @@ export default function RecordPage() {
 
       <header className="site-header product-site-header">
         <div className="utility-row shell">
-          <Button
-            aria-expanded={mobileOpen}
-            aria-label="開啟選單"
-            className="mobile-menu"
-            onClick={() => setMobileOpen((open) => !open)}
-            size="icon"
-            variant="ghost"
-          >
-            <Menu aria-hidden="true" />
-            <span className="menu-word">MENU</span>
-          </Button>
-
           <Link className="wordmark" href="/" aria-label="Utopia Vinyl 首頁">
             <Image
               alt="Utopia Vinyl 黑膠理想國"
@@ -136,7 +122,7 @@ export default function RecordPage() {
         </div>
 
         <nav
-          className={`category-nav ${mobileOpen ? 'is-open' : ''}`}
+          className="category-nav"
           aria-label="主要分類"
         >
           <div className="category-inner shell">

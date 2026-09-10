@@ -140,33 +140,9 @@ input:focus-visible {
 .utility-row {
   min-height: 116px;
   display: grid;
-  grid-template-columns: 82px 164px minmax(230px, 1fr) auto;
+  grid-template-columns: 164px minmax(230px, 1fr) auto;
   align-items: center;
   gap: 42px;
-}
-
-.mobile-menu {
-  width: max-content;
-  height: auto;
-  min-width: 70px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 9px;
-  padding: 0;
-  border-radius: 0;
-  color: var(--red);
-}
-
-.mobile-menu svg {
-  width: 18px;
-  height: 18px;
-  stroke-width: 1.6;
-}
-
-.menu-word {
-  font-size: 10px;
-  letter-spacing: 0.16em;
 }
 
 .wordmark {
@@ -1126,7 +1102,7 @@ footer {
 
 @media (max-width: 1100px) {
   .utility-row {
-    grid-template-columns: 70px 128px minmax(180px, 1fr) auto;
+    grid-template-columns: 128px minmax(180px, 1fr) auto;
     gap: 24px;
   }
 
@@ -1153,12 +1129,8 @@ footer {
 
   .utility-row {
     min-height: 86px;
-    grid-template-columns: 80px 1fr auto;
+    grid-template-columns: 1fr auto;
     gap: 12px;
-  }
-
-  .mobile-menu {
-    display: inline-flex;
   }
 
   .search-box {
@@ -1180,14 +1152,6 @@ footer {
 
   .category-inner::-webkit-scrollbar {
     display: none;
-  }
-
-  .category-nav {
-    display: none;
-  }
-
-  .category-nav.is-open {
-    display: block;
   }
 
   .nav-item > button,
@@ -1263,15 +1227,7 @@ footer {
   }
 
   .utility-row {
-    grid-template-columns: 64px 1fr auto;
-  }
-
-  .menu-word {
-    display: none;
-  }
-
-  .mobile-menu {
-    min-width: 32px;
+    grid-template-columns: 1fr auto;
   }
 
   .brand-logo {
