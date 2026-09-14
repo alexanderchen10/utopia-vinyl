@@ -252,179 +252,201 @@ export default function Home() {
             <p className="eyebrow">{text.home.landingEyebrow}</p>
             <h1 id="landing-title">{text.home.landingTitle}</h1>
             <p className="landing-message">{text.home.landingMessage}</p>
-            <a className="landing-cta" href="#new-arrivals">
+            <a className="landing-cta" href="#about">
               {text.home.landingCta}
               <span aria-hidden="true">↓</span>
             </a>
           </div>
-          <div className="landing-hero-mark" aria-hidden="true">
-            <span>U</span>
-            <small>
-              UTOPIA
-              <br />
-              VINYL
-            </small>
+          <div className="landing-hero-mark">
+            <Image
+              alt={text.home.logoAlt}
+              className="landing-logo"
+              height={1024}
+              src="/utopia-vinyl.png"
+              width={1536}
+            />
           </div>
         </section>
       ) : null}
 
-      <section className="collection-heading shell" id="new-arrivals">
-        <p className="eyebrow">{text.home.collectionEyebrow}</p>
-        <div className="title-line">
-          <div>
-            <h1>{collectionTitle}</h1>
-            <p>{collectionSubtitle}</p>
+      {selected === 'home' ? (
+        <section className="about-section shell" id="about">
+          <div className="about-index">
+            <p className="eyebrow">{text.home.aboutEyebrow}</p>
+            <span>2009—2026</span>
           </div>
-          <span className="count-pill">
-            {text.home.count(filteredRecords.length)}
-          </span>
-        </div>
-      </section>
-
-      <div className="catalog shell">
-        <aside className="filters" aria-label="唱片篩選">
-          <div className="filter-title">
-            <span>{text.home.browse}</span>
-            <SlidersHorizontal aria-hidden="true" />
+          <div className="about-copy">
+            <h2>{text.home.aboutTitle}</h2>
+            <p>{text.home.aboutBody}</p>
+            <Link className="landing-cta" href="/?collection=new-arrivals">
+              {text.home.aboutCta}
+              <span aria-hidden="true">→</span>
+            </Link>
           </div>
-          <div className="filter-group">
-            <h2>{text.home.category}</h2>
-            {navigation
-              .filter((item) => item.id !== 'home')
-              .map((item) => (
-                <button
-                  aria-pressed={selected === item.id}
-                  key={item.id}
-                  onClick={() => selectCollection(item.id)}
-                  type="button"
-                >
-                  {item.id === 'classical'
-                    ? text.home.classicalMusic
-                    : item.id === 'jazz'
-                      ? text.home.jazzMusic
-                      : text.nav[item.key as keyof typeof text.nav]}{' '}
-                  <span>
-                    {item.id === 'new-arrivals'
-                      ? records.filter((record) => record.newArrival).length
-                      : item.id === 'special-prices'
-                        ? records.filter(isSpecialPrice).length
-                        : records.filter(
-                            (record) => record.category === item.id,
-                          ).length}
-                  </span>
-                </button>
-              ))}
-          </div>
-          <div className="filter-group">
-            <h2>{text.home.nameIndex}</h2>
-            <p>{text.home.indexDescription}</p>
-            <div className="alphabet" aria-label={text.home.indexAria}>
-              {alphabet.map((letter) => (
-                <button
-                  aria-pressed={selectedLetter === letter}
-                  disabled={!hasAlphabet || !availableLetters.has(letter)}
-                  key={letter}
-                  onClick={() => setSelectedLetter(letter)}
-                  type="button"
-                >
-                  {letter}
-                </button>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        <section className="products" aria-label="唱片列表">
-          <div className="product-toolbar">
-            <p>{text.home.results(filteredRecords.length)}</p>
-            <button disabled type="button">
-              {text.home.sort} <ChevronDown aria-hidden="true" />
-            </button>
-          </div>
-
-          {filteredRecords.length ? (
-            <div className="product-grid">
-              {filteredRecords.map((record) => (
-                <article className="record-card" key={record.id}>
-                  <Link
-                    aria-label={text.home.viewDetails(record.title)}
-                    className="record-card-link"
-                    href={`/records/${record.id}`}
-                    onClick={(event) => {
-                      if (
-                        event.button !== 0 ||
-                        event.metaKey ||
-                        event.ctrlKey ||
-                        event.shiftKey ||
-                        event.altKey
-                      ) {
-                        return;
-                      }
-
-                      event.preventDefault();
-                      window.location.assign(`/records/${record.id}`);
-                    }}
-                  >
-                    <div className="record-cover">
-                      <Image
-                        alt={text.home.coverAlt(record.title)}
-                        height={1254}
-                        sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 36vw"
-                        src={record.image}
-                        width={1254}
-                      />
-                      {record.newArrival ? (
-                        <span>{text.home.newBadge}</span>
-                      ) : null}
-                    </div>
-                    <div className="record-details">
-                      <p className="record-composer">{record.composers}</p>
-                      <h2>{record.title}</h2>
-                      <p className="record-performers">{record.performers}</p>
-                      <dl>
-                        <div>
-                          <dt>{text.home.label}</dt>
-                          <dd>{record.label}</dd>
-                        </div>
-                        <div>
-                          <dt>{text.home.catalogNumber}</dt>
-                          <dd>{record.catalogNumber}</dd>
-                        </div>
-                      </dl>
-                      <div className="record-status">
-                        <strong>{record.price}</strong>
-                        <span>{record.condition}</span>
-                      </div>
-                    </div>
-                  </Link>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-catalog">
-              <div className="record-icon" aria-hidden="true">
-                <Disc3 />
-              </div>
-              <p className="eyebrow">{text.home.emptyEyebrow}</p>
-              <h2 id="empty-title">
-                {normalizedSearch
-                  ? text.home.noSearch(searchQuery.trim())
-                  : selectedLetter
-                    ? text.home.noLetter(selectedLetter)
-                    : text.home.emptyTitle}
-              </h2>
-              <p>
-                {normalizedSearch
-                  ? text.home.searchHint
-                  : text.home.emptyHint(selectedNavLabel)}
-              </p>
-              <Button className="notify-button" disabled>
-                {text.home.emptyButton(selectedNavLabel)}
-              </Button>
-            </div>
-          )}
         </section>
-      </div>
+      ) : (
+        <>
+          <section className="collection-heading shell" id="new-arrivals">
+            <p className="eyebrow">{text.home.collectionEyebrow}</p>
+            <div className="title-line">
+              <div>
+                <h1>{collectionTitle}</h1>
+                <p>{collectionSubtitle}</p>
+              </div>
+              <span className="count-pill">
+                {text.home.count(filteredRecords.length)}
+              </span>
+            </div>
+          </section>
+
+          <div className="catalog shell">
+            <aside className="filters" aria-label="唱片篩選">
+              <div className="filter-title">
+                <span>{text.home.browse}</span>
+                <SlidersHorizontal aria-hidden="true" />
+              </div>
+              <div className="filter-group">
+                <h2>{text.home.category}</h2>
+                {navigation
+                  .filter((item) => item.id !== 'home')
+                  .map((item) => (
+                    <button
+                      aria-pressed={selected === item.id}
+                      key={item.id}
+                      onClick={() => selectCollection(item.id)}
+                      type="button"
+                    >
+                      {item.id === 'classical'
+                        ? text.home.classicalMusic
+                        : item.id === 'jazz'
+                          ? text.home.jazzMusic
+                          : text.nav[item.key as keyof typeof text.nav]}{' '}
+                      <span>
+                        {item.id === 'new-arrivals'
+                          ? records.filter((record) => record.newArrival).length
+                          : item.id === 'special-prices'
+                            ? records.filter(isSpecialPrice).length
+                            : records.filter(
+                                (record) => record.category === item.id,
+                              ).length}
+                      </span>
+                    </button>
+                  ))}
+              </div>
+              <div className="filter-group">
+                <h2>{text.home.nameIndex}</h2>
+                <p>{text.home.indexDescription}</p>
+                <div className="alphabet" aria-label={text.home.indexAria}>
+                  {alphabet.map((letter) => (
+                    <button
+                      aria-pressed={selectedLetter === letter}
+                      disabled={!hasAlphabet || !availableLetters.has(letter)}
+                      key={letter}
+                      onClick={() => setSelectedLetter(letter)}
+                      type="button"
+                    >
+                      {letter}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </aside>
+
+            <section className="products" aria-label="唱片列表">
+              <div className="product-toolbar">
+                <p>{text.home.results(filteredRecords.length)}</p>
+                <button disabled type="button">
+                  {text.home.sort} <ChevronDown aria-hidden="true" />
+                </button>
+              </div>
+
+              {filteredRecords.length ? (
+                <div className="product-grid">
+                  {filteredRecords.map((record) => (
+                    <article className="record-card" key={record.id}>
+                      <Link
+                        aria-label={text.home.viewDetails(record.title)}
+                        className="record-card-link"
+                        href={`/records/${record.id}`}
+                        onClick={(event) => {
+                          if (
+                            event.button !== 0 ||
+                            event.metaKey ||
+                            event.ctrlKey ||
+                            event.shiftKey ||
+                            event.altKey
+                          ) {
+                            return;
+                          }
+
+                          event.preventDefault();
+                          window.location.assign(`/records/${record.id}`);
+                        }}
+                      >
+                        <div className="record-cover">
+                          <Image
+                            alt={text.home.coverAlt(record.title)}
+                            height={1254}
+                            sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 36vw"
+                            src={record.image}
+                            width={1254}
+                          />
+                          {record.newArrival ? (
+                            <span>{text.home.newBadge}</span>
+                          ) : null}
+                        </div>
+                        <div className="record-details">
+                          <p className="record-composer">{record.composers}</p>
+                          <h2>{record.title}</h2>
+                          <p className="record-performers">
+                            {record.performers}
+                          </p>
+                          <dl>
+                            <div>
+                              <dt>{text.home.label}</dt>
+                              <dd>{record.label}</dd>
+                            </div>
+                            <div>
+                              <dt>{text.home.catalogNumber}</dt>
+                              <dd>{record.catalogNumber}</dd>
+                            </div>
+                          </dl>
+                          <div className="record-status">
+                            <strong>{record.price}</strong>
+                            <span>{record.condition}</span>
+                          </div>
+                        </div>
+                      </Link>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="empty-catalog">
+                  <div className="record-icon" aria-hidden="true">
+                    <Disc3 />
+                  </div>
+                  <p className="eyebrow">{text.home.emptyEyebrow}</p>
+                  <h2 id="empty-title">
+                    {normalizedSearch
+                      ? text.home.noSearch(searchQuery.trim())
+                      : selectedLetter
+                        ? text.home.noLetter(selectedLetter)
+                        : text.home.emptyTitle}
+                  </h2>
+                  <p>
+                    {normalizedSearch
+                      ? text.home.searchHint
+                      : text.home.emptyHint(selectedNavLabel)}
+                  </p>
+                  <Button className="notify-button" disabled>
+                    {text.home.emptyButton(selectedNavLabel)}
+                  </Button>
+                </div>
+              )}
+            </section>
+          </div>
+        </>
+      )}
 
       <section className="reviews-section" aria-labelledby="reviews-title">
         <div className="shell">
