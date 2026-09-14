@@ -26,6 +26,15 @@ export const categoryLabels: Record<RecordCategory, string> = {
   taiwan: '臺灣黑膠',
 };
 
+/**
+ * Special-price records are opt-in through the existing price field so the
+ * admin workflow does not need another required field. Enter a price such as
+ * "特價 NT$300" or "優惠價" and the record appears in the special section.
+ */
+export function isSpecialPrice(record: Pick<VinylRecord, 'price'>) {
+  return /特價|優惠|折扣|sale|clearance/i.test(String(record.price ?? ''));
+}
+
 export const initialRecords: VinylRecord[] = [
   {
     id: 'janos-starker-most-beautiful-melodies',
@@ -47,7 +56,8 @@ export const initialRecords: VinylRecord[] = [
     id: 'chopin-liszt-piano-concertos',
     title: 'Chopin & Liszt: Piano Concertos No. 1',
     composers: '蕭邦・李斯特',
-    performers: 'Martha Argerich 鋼琴・Claudio Abbado 指揮・London Symphony Orchestra',
+    performers:
+      'Martha Argerich 鋼琴・Claudio Abbado 指揮・London Symphony Orchestra',
     category: 'classical',
     indexLetters: ['C', 'L'],
     label: 'Deutsche Grammophon',
@@ -63,7 +73,5 @@ export const initialRecords: VinylRecord[] = [
 
 export function normalizeIndexLetters(value: string | string[]) {
   const source = Array.isArray(value) ? value.join('') : value;
-  return Array.from(
-    new Set(source.toUpperCase().match(/[A-Z]/g) ?? []),
-  ).sort();
+  return Array.from(new Set(source.toUpperCase().match(/[A-Z]/g) ?? [])).sort();
 }

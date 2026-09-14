@@ -13,39 +13,54 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { initialRecords, type VinylRecord } from '@/lib/catalog';
+import {
+  LanguageSwitcher,
+  useSiteLanguage,
+} from '@/components/site/language-switcher';
+import {
+  initialRecords,
+  isSpecialPrice,
+  type VinylRecord,
+} from '@/lib/catalog';
+import { copy } from '@/lib/site-copy';
 
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 const navigation = [
-  { id: 'new-arrivals', label: '新到唱片', subtitle: '最新入庫', accent: true },
+  { id: 'new-arrivals', key: 'newArrivals', accent: true },
+  { id: 'special-prices', key: 'specialPrices' },
   {
     id: 'classical',
-    label: '古典',
-    subtitle: '按作曲家索引',
-    submenu: '依作曲家英文字母瀏覽',
+    key: 'classical',
+    submenuKey: 'classical',
   },
   {
     id: 'jazz',
-    label: '爵士',
-    subtitle: '按演奏家／樂團索引',
-    submenu: '依演奏家或樂團英文字母瀏覽',
+    key: 'jazz',
+    submenuKey: 'jazz',
   },
-  { id: 'pop', label: '流行', subtitle: '流行音樂' },
-  { id: 'taiwan', label: '臺灣黑膠', subtitle: '臺灣之聲' },
+  { id: 'pop', key: 'pop' },
+  { id: 'taiwan', key: 'taiwan' },
 ];
 
 export default function Home() {
+  const [language, setLanguage] = useSiteLanguage();
+  const text = copy[language];
   const [records, setRecords] = useState<VinylRecord[]>(initialRecords);
   const [selected, setSelected] = useState('new-arrivals');
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const selectedNav =
     navigation.find((item) => item.id === selected) ?? navigation[0];
+  const selectedNavLabel = text.nav[selectedNav.key as keyof typeof text.nav];
+  const selectedNavSubtitle =
+    text.navSub[selectedNav.key as keyof typeof text.navSub];
   const hasAlphabet = selected === 'classical' || selected === 'jazz';
   const normalizedSearch = searchQuery.trim().toLocaleLowerCase();
-  const selectedCategoryRecords = records.filter(
-    (record) => record.category === selected,
+  const selectedCategoryRecords = records.filter((record) =>
+    selected === 'special-prices'
+      ? isSpecialPrice(record)
+      : record.category === selected,
   );
   const availableLetters = new Set(
     selectedCategoryRecords.flatMap((record) => record.indexLetters),
@@ -54,7 +69,9 @@ export default function Home() {
     const matchesCollection =
       selected === 'new-arrivals'
         ? record.newArrival
-        : record.category === selected;
+        : selected === 'special-prices'
+          ? isSpecialPrice(record)
+          : record.category === selected;
     const matchesLetter =
       !selectedLetter || record.indexLetters.includes(selectedLetter);
     const searchText = [
@@ -116,14 +133,14 @@ export default function Home() {
   return (
     <main id="top">
       <div className="announcement">
-        <p>滿 NT$2,000 享免運・黑膠唱片專門店</p>
+        <p>{text.announcement}</p>
       </div>
 
       <header className="site-header">
         <div className="utility-row shell">
-          <a className="wordmark" href="#top" aria-label="Utopia Vinyl 首頁">
+          <a className="wordmark" href="#top" aria-label={text.home.ariaHome}>
             <Image
-              alt="Utopia Vinyl 黑膠理想國"
+              alt={text.home.logoAlt}
               className="brand-logo"
               height={1024}
               priority
@@ -134,21 +151,31 @@ export default function Home() {
 
           <label className="search-box">
             <Search aria-hidden="true" />
-            <span className="sr-only">搜尋唱片</span>
+            <span className="sr-only">{text.home.searchLabel}</span>
             <input
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="搜尋作曲家、演奏家或樂團"
+              placeholder={text.home.searchPlaceholder}
               type="search"
               value={searchQuery}
             />
           </label>
 
           <div className="header-actions">
-            <Button aria-label="我的收藏" disabled size="icon" variant="ghost">
+            <LanguageSwitcher language={language} onChange={setLanguage} />
+            <Button
+              aria-label={language === 'en' ? 'Favorites' : '我的收藏'}
+              disabled
+              size="icon"
+              variant="ghost"
+            >
               <Heart />
             </Button>
             <Button
-              aria-label="購物袋，目前沒有商品"
+              aria-label={
+                language === 'en'
+                  ? 'Shopping bag, currently empty'
+                  : '購物袋，目前沒有商品'
+              }
               disabled
               size="icon"
               variant="ghost"
@@ -158,29 +185,34 @@ export default function Home() {
           </div>
         </div>
 
-        <nav
-          className="category-nav"
-          aria-label="主要分類"
-        >
+        <nav className="category-nav" aria-label={text.home.mainNav}>
           <div className="category-inner shell">
             {navigation.map((item) => (
-              <div className="nav-item" key={item.label}>
+              <div className="nav-item" key={item.id}>
                 <button
                   aria-current={selected === item.id ? 'page' : undefined}
                   className={item.accent ? 'accent-link' : ''}
                   onClick={() => selectCollection(item.id)}
                   type="button"
                 >
-                  <span>{item.label}</span>
-                  <small>{item.subtitle}</small>
-                  {item.submenu ? <ChevronDown aria-hidden="true" /> : null}
+                  <span>{text.nav[item.key as keyof typeof text.nav]}</span>
+                  <small>
+                    {text.navSub[item.key as keyof typeof text.navSub]}
+                  </small>
+                  {item.submenuKey ? <ChevronDown aria-hidden="true" /> : null}
                 </button>
-                {item.submenu ? (
+                {item.submenuKey ? (
                   <div className="nav-popover">
-                    <p>{item.submenu}</p>
+                    <p>
+                      {
+                        text.navPopover[
+                          item.submenuKey as keyof typeof text.navPopover
+                        ]
+                      }
+                    </p>
                     <div
                       className="mini-alphabet"
-                      aria-label={`${item.label} A 到 Z`}
+                      aria-label={`${text.nav[item.key as keyof typeof text.nav]} A to Z`}
                     >
                       {alphabet.map((letter) => (
                         <button
@@ -204,29 +236,27 @@ export default function Home() {
       </header>
 
       <section className="collection-heading shell" id="new-arrivals">
-        <p className="eyebrow">精選收藏</p>
+        <p className="eyebrow">{text.home.collectionEyebrow}</p>
         <div className="title-line">
           <div>
-            <h1>{selectedNav.label}</h1>
-            <p>{selectedNav.subtitle}</p>
+            <h1>{selectedNavLabel}</h1>
+            <p>{selectedNavSubtitle}</p>
           </div>
-          <span className="count-pill">{filteredRecords.length} 張唱片</span>
+          <span className="count-pill">
+            {text.home.count(filteredRecords.length)}
+          </span>
         </div>
-        <p className="intro">
-          歡迎來到 Utopia
-          Vinyl。請盡情瀏覽，享受尋找唱片的樂趣。我們擁有豐富的黑膠唱片收藏，自
-          2009 年起營業至今。
-        </p>
+        <p className="intro">{text.home.intro}</p>
       </section>
 
       <div className="catalog shell">
         <aside className="filters" aria-label="唱片篩選">
           <div className="filter-title">
-            <span>瀏覽方式</span>
+            <span>{text.home.browse}</span>
             <SlidersHorizontal aria-hidden="true" />
           </div>
           <div className="filter-group">
-            <h2>分類</h2>
+            <h2>{text.home.category}</h2>
             {navigation.slice(1).map((item) => (
               <button
                 aria-pressed={selected === item.id}
@@ -234,23 +264,25 @@ export default function Home() {
                 onClick={() => selectCollection(item.id)}
                 type="button"
               >
-                {item.label}
-                {item.id === 'classical' || item.id === 'jazz'
-                  ? '音樂'
-                  : ''}{' '}
+                {text.nav[item.key as keyof typeof text.nav]}
+                {item.id === 'classical'
+                  ? text.home.classicalMusic
+                  : item.id === 'jazz'
+                    ? text.home.jazzMusic
+                    : ''}{' '}
                 <span>
-                  {
-                    records.filter((record) => record.category === item.id)
-                      .length
-                  }
+                  {item.id === 'special-prices'
+                    ? records.filter(isSpecialPrice).length
+                    : records.filter((record) => record.category === item.id)
+                        .length}
                 </span>
               </button>
             ))}
           </div>
           <div className="filter-group">
-            <h2>姓名索引</h2>
-            <p>古典依作曲家，爵士依演奏家或樂團排列。</p>
-            <div className="alphabet" aria-label="A 到 Z 索引">
+            <h2>{text.home.nameIndex}</h2>
+            <p>{text.home.indexDescription}</p>
+            <div className="alphabet" aria-label={text.home.indexAria}>
               {alphabet.map((letter) => (
                 <button
                   aria-pressed={selectedLetter === letter}
@@ -268,9 +300,9 @@ export default function Home() {
 
         <section className="products" aria-label="唱片列表">
           <div className="product-toolbar">
-            <p>顯示 {filteredRecords.length} 項結果</p>
+            <p>{text.home.results(filteredRecords.length)}</p>
             <button disabled type="button">
-              依上架日期排序 <ChevronDown aria-hidden="true" />
+              {text.home.sort} <ChevronDown aria-hidden="true" />
             </button>
           </div>
 
@@ -279,7 +311,7 @@ export default function Home() {
               {filteredRecords.map((record) => (
                 <article className="record-card" key={record.id}>
                   <Link
-                    aria-label={`查看 ${record.title} 唱片詳情`}
+                    aria-label={text.home.viewDetails(record.title)}
                     className="record-card-link"
                     href={`/records/${record.id}`}
                     onClick={(event) => {
@@ -299,13 +331,15 @@ export default function Home() {
                   >
                     <div className="record-cover">
                       <Image
-                        alt={`${record.title} 唱片封面`}
+                        alt={text.home.coverAlt(record.title)}
                         height={1254}
                         sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 36vw"
                         src={record.image}
                         width={1254}
                       />
-                      {record.newArrival ? <span>新到</span> : null}
+                      {record.newArrival ? (
+                        <span>{text.home.newBadge}</span>
+                      ) : null}
                     </div>
                     <div className="record-details">
                       <p className="record-composer">{record.composers}</p>
@@ -313,11 +347,11 @@ export default function Home() {
                       <p className="record-performers">{record.performers}</p>
                       <dl>
                         <div>
-                          <dt>唱片公司</dt>
+                          <dt>{text.home.label}</dt>
                           <dd>{record.label}</dd>
                         </div>
                         <div>
-                          <dt>編號</dt>
+                          <dt>{text.home.catalogNumber}</dt>
                           <dd>{record.catalogNumber}</dd>
                         </div>
                       </dl>
@@ -335,21 +369,21 @@ export default function Home() {
               <div className="record-icon" aria-hidden="true">
                 <Disc3 />
               </div>
-              <p className="eyebrow">尚未找到唱片</p>
+              <p className="eyebrow">{text.home.emptyEyebrow}</p>
               <h2 id="empty-title">
                 {normalizedSearch
-                  ? `找不到符合「${searchQuery.trim()}」的唱片`
+                  ? text.home.noSearch(searchQuery.trim())
                   : selectedLetter
-                    ? `${selectedLetter} 區尚未有唱片`
-                    : '唱片正在入櫃'}
+                    ? text.home.noLetter(selectedLetter)
+                    : text.home.emptyTitle}
               </h2>
               <p>
                 {normalizedSearch
-                  ? '請嘗試搜尋其他作曲家、演奏家、樂團或唱片編號。'
-                  : `「${selectedNav.label}」已經準備好迎接第一批收藏。加入唱片後，它們會以清楚的大封面網格顯示在這裡。`}
+                  ? text.home.searchHint
+                  : text.home.emptyHint(selectedNavLabel)}
               </p>
               <Button className="notify-button" disabled>
-                {selectedNav.label}會顯示在這裡
+                {text.home.emptyButton(selectedNavLabel)}
               </Button>
             </div>
           )}
@@ -360,45 +394,23 @@ export default function Home() {
         <div className="shell">
           <div className="reviews-heading">
             <div>
-              <p className="eyebrow">示意評論・之後可替換</p>
-              <h2 id="reviews-title">收藏家的分享</h2>
+              <p className="eyebrow">{text.home.reviewsEyebrow}</p>
+              <h2 id="reviews-title">{text.home.reviewsTitle}</h2>
             </div>
-            <p>每一張唱片，都有一段值得慢慢聆聽的故事。</p>
+            <p>{text.home.reviewsIntro}</p>
           </div>
           <div className="review-grid">
-            <figure className="review-card">
-              <blockquote>
-                「封面品況和唱片資料整理得很清楚，很快就找到想收藏的版本。」
-              </blockquote>
-              <figcaption>
-                <span className="review-stars" aria-label="五顆星">
-                  ★★★★★
-                </span>
-                <cite>林先生・古典樂收藏者</cite>
-              </figcaption>
-            </figure>
-            <figure className="review-card">
-              <blockquote>
-                「喜歡這裡慢慢瀏覽的感覺，每次回來都能發現新的聲音。」
-              </blockquote>
-              <figcaption>
-                <span className="review-stars" aria-label="五顆星">
-                  ★★★★★
-                </span>
-                <cite>陳小姐・黑膠愛好者</cite>
-              </figcaption>
-            </figure>
-            <figure className="review-card">
-              <blockquote>
-                「從爵士到臺灣黑膠，分類很直覺，挑唱片變成一件很享受的事。」
-              </blockquote>
-              <figcaption>
-                <span className="review-stars" aria-label="五顆星">
-                  ★★★★★
-                </span>
-                <cite>王先生・樂迷</cite>
-              </figcaption>
-            </figure>
+            {text.home.reviews.map(([quote, author]) => (
+              <figure className="review-card" key={author}>
+                <blockquote>{quote}</blockquote>
+                <figcaption>
+                  <span className="review-stars" aria-label={text.home.stars}>
+                    ★★★★★
+                  </span>
+                  <cite>{author}</cite>
+                </figcaption>
+              </figure>
+            ))}
           </div>
         </div>
       </section>
@@ -408,18 +420,18 @@ export default function Home() {
           <a
             className="wordmark footer-brand"
             href="#top"
-            aria-label="Utopia Vinyl 首頁"
+            aria-label={text.home.ariaHome}
           >
             <Image
-              alt="Utopia Vinyl 黑膠理想國"
+              alt={text.home.logoAlt}
               className="brand-logo footer-logo"
               height={1024}
               src="/utopia-vinyl.png"
               width={1536}
             />
           </a>
-          <p>自 2009 年起，為愛樂人收藏每一種聲音。</p>
-          <p className="copyright">© 2026 Utopia Vinyl・版權所有</p>
+          <p>{text.home.footer}</p>
+          <p className="copyright">{text.home.copyright}</p>
         </div>
       </footer>
     </main>

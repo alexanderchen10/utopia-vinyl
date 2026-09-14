@@ -16,20 +16,24 @@ import {
 
 import { Button } from '@/components/ui/button';
 import {
-  categoryLabels,
-  initialRecords,
-  type VinylRecord,
-} from '@/lib/catalog';
+  LanguageSwitcher,
+  useSiteLanguage,
+} from '@/components/site/language-switcher';
+import { initialRecords, type VinylRecord } from '@/lib/catalog';
+import { categoryNames, copy } from '@/lib/site-copy';
 
 const navigation = [
-  { id: 'new-arrivals', label: '新到唱片', subtitle: '最新入庫' },
-  { id: 'classical', label: '古典', subtitle: '按作曲家索引', submenu: true },
-  { id: 'jazz', label: '爵士', subtitle: '按演奏家／樂團索引', submenu: true },
-  { id: 'pop', label: '流行', subtitle: '流行音樂' },
-  { id: 'taiwan', label: '臺灣黑膠', subtitle: '臺灣之聲' },
+  { id: 'new-arrivals', key: 'newArrivals' },
+  { id: 'special-prices', key: 'specialPrices' },
+  { id: 'classical', key: 'classical', submenuKey: 'classical' },
+  { id: 'jazz', key: 'jazz', submenuKey: 'jazz' },
+  { id: 'pop', key: 'pop' },
+  { id: 'taiwan', key: 'taiwan' },
 ];
 
 export default function RecordPage() {
+  const [language, setLanguage] = useSiteLanguage();
+  const text = copy[language];
   const params = useParams<{ id: string }>();
   const recordId = params?.id;
   const [records, setRecords] = useState<VinylRecord[]>(initialRecords);
@@ -77,14 +81,14 @@ export default function RecordPage() {
   return (
     <main id="top">
       <div className="announcement">
-        <p>滿 NT$2,000 享免運・黑膠唱片專門店</p>
+        <p>{text.announcement}</p>
       </div>
 
       <header className="site-header product-site-header">
         <div className="utility-row shell">
-          <Link className="wordmark" href="/" aria-label="Utopia Vinyl 首頁">
+          <Link className="wordmark" href="/" aria-label={text.home.ariaHome}>
             <Image
-              alt="Utopia Vinyl 黑膠理想國"
+              alt={text.home.logoAlt}
               className="brand-logo"
               height={1024}
               priority
@@ -96,22 +100,32 @@ export default function RecordPage() {
           <form action="/" className="search-box" method="get">
             <Search aria-hidden="true" />
             <label className="sr-only" htmlFor="record-search">
-              搜尋唱片
+              {text.home.searchLabel}
             </label>
             <input
               id="record-search"
               name="q"
-              placeholder="搜尋作曲家、演奏家或樂團"
+              placeholder={text.home.searchPlaceholder}
               type="search"
             />
           </form>
 
           <div className="header-actions">
-            <Button aria-label="我的收藏" disabled size="icon" variant="ghost">
+            <LanguageSwitcher language={language} onChange={setLanguage} />
+            <Button
+              aria-label={language === 'en' ? 'Favorites' : '我的收藏'}
+              disabled
+              size="icon"
+              variant="ghost"
+            >
               <Heart />
             </Button>
             <Button
-              aria-label="購物袋，目前沒有商品"
+              aria-label={
+                language === 'en'
+                  ? 'Shopping bag, currently empty'
+                  : '購物袋，目前沒有商品'
+              }
               disabled
               size="icon"
               variant="ghost"
@@ -121,17 +135,16 @@ export default function RecordPage() {
           </div>
         </div>
 
-        <nav
-          className="category-nav"
-          aria-label="主要分類"
-        >
+        <nav className="category-nav" aria-label={text.home.mainNav}>
           <div className="category-inner shell">
             {navigation.map((item) => (
               <div className="nav-item" key={item.id}>
                 <Link href={`/?collection=${item.id}`}>
-                  <span>{item.label}</span>
-                  <small>{item.subtitle}</small>
-                  {item.submenu ? <ChevronDown aria-hidden="true" /> : null}
+                  <span>{text.nav[item.key as keyof typeof text.nav]}</span>
+                  <small>
+                    {text.navSub[item.key as keyof typeof text.navSub]}
+                  </small>
+                  {item.submenuKey ? <ChevronDown aria-hidden="true" /> : null}
                 </Link>
               </div>
             ))}
@@ -141,11 +154,14 @@ export default function RecordPage() {
 
       {record ? (
         <>
-          <div className="product-breadcrumb shell" aria-label="麵包屑導覽">
-            <Link href="/">首頁</Link>
+          <div
+            className="product-breadcrumb shell"
+            aria-label={text.detail.breadcrumb}
+          >
+            <Link href="/">{text.detail.home}</Link>
             <span aria-hidden="true">/</span>
             <Link href={`/?collection=${record.category}`}>
-              {categoryLabels[record.category]}
+              {categoryNames[language][record.category]}
             </Link>
             <span aria-hidden="true">/</span>
             <span>{record.title}</span>
@@ -158,7 +174,7 @@ export default function RecordPage() {
             <div className="product-image-stage">
               <div className="product-image-frame">
                 <Image
-                  alt={`${record.title} 唱片封面`}
+                  alt={text.home.coverAlt(record.title)}
                   height={1254}
                   priority
                   sizes="(max-width: 760px) 100vw, 52vw"
@@ -166,53 +182,60 @@ export default function RecordPage() {
                   width={1254}
                 />
               </div>
-              <p>唱片封面實拍</p>
+              <p>{text.detail.coverCaption}</p>
             </div>
 
             <div className="product-information">
               <div className="product-heading">
                 {record.newArrival ? (
-                  <span className="product-badge">新到唱片</span>
+                  <span className="product-badge">{text.detail.newBadge}</span>
                 ) : null}
-                <p>{categoryLabels[record.category]}音樂</p>
+                <p>
+                  {text.detail.categoryMusic(
+                    categoryNames[language][record.category],
+                  )}
+                </p>
                 <h1 id="product-title">{record.title}</h1>
               </div>
 
               <div className="product-credit">
-                <h2>作曲家</h2>
-                <p>{record.composers || '資料整理中'}</p>
+                <h2>{text.detail.composer}</h2>
+                <p>{record.composers || text.detail.organizing}</p>
               </div>
               <div className="product-credit">
-                <h2>演奏家／樂團</h2>
-                <p>{record.performers || '資料整理中'}</p>
+                <h2>{text.detail.performer}</h2>
+                <p>{record.performers || text.detail.organizing}</p>
               </div>
 
               <dl className="product-facts">
                 <div>
-                  <dt>唱片公司</dt>
-                  <dd>{record.label || '資料整理中'}</dd>
+                  <dt>{text.detail.label}</dt>
+                  <dd>{record.label || text.detail.organizing}</dd>
                 </div>
                 <div>
-                  <dt>唱片編號</dt>
-                  <dd>{record.catalogNumber || '資料整理中'}</dd>
+                  <dt>{text.detail.catalogNumber}</dt>
+                  <dd>{record.catalogNumber || text.detail.organizing}</dd>
                 </div>
                 <div>
-                  <dt>唱片品相</dt>
+                  <dt>{text.detail.condition}</dt>
                   <dd>{record.condition}</dd>
                 </div>
               </dl>
 
               <div className="product-price-row">
                 <strong>{record.price}</strong>
-                <span>運送資訊</span>
+                <span>{text.detail.shipping}</span>
                 <span aria-hidden="true">/</span>
-                <span>購買說明</span>
+                <span>{text.detail.purchaseInfo}</span>
               </div>
 
               <div className="purchase-row">
-                <div className="quantity-control" aria-label="選擇數量">
+                <div
+                  className="quantity-control"
+                  aria-label={text.detail.quantity}
+                >
                   <button
-                    aria-label="減少數量"
+                    aria-label={text.detail.decrease}
                     disabled={quantity === 1}
                     onClick={() =>
                       setQuantity((value) => Math.max(1, value - 1))
@@ -223,7 +246,7 @@ export default function RecordPage() {
                   </button>
                   <output aria-live="polite">{quantity}</output>
                   <button
-                    aria-label="增加數量"
+                    aria-label={text.detail.increase}
                     onClick={() =>
                       setQuantity((value) => Math.min(9, value + 1))
                     }
@@ -235,16 +258,14 @@ export default function RecordPage() {
                 <button
                   className="purchase-button"
                   onClick={() =>
-                    setPurchaseMessage(
-                      '線上購物功能正在準備中，之後會在這裡開放購買。',
-                    )
+                    setPurchaseMessage(text.detail.purchaseMessage)
                   }
                   type="button"
                 >
-                  加入購物袋
+                  {text.detail.addToBag}
                 </button>
                 <button
-                  aria-label="收藏功能即將推出"
+                  aria-label={text.detail.favoriteComing}
                   className="product-heart"
                   disabled
                   type="button"
@@ -265,11 +286,11 @@ export default function RecordPage() {
             >
               <div className="related-heading">
                 <div>
-                  <p className="eyebrow">更多收藏</p>
-                  <h2 id="related-title">你可能也喜歡</h2>
+                  <p className="eyebrow">{text.detail.relatedEyebrow}</p>
+                  <h2 id="related-title">{text.detail.relatedTitle}</h2>
                 </div>
                 <Link href="/">
-                  查看全部唱片
+                  {text.detail.viewAll}
                   <ArrowLeft aria-hidden="true" />
                 </Link>
               </div>
@@ -295,7 +316,7 @@ export default function RecordPage() {
                     >
                       <div className="related-cover">
                         <Image
-                          alt={`${item.title} 唱片封面`}
+                          alt={text.home.coverAlt(item.title)}
                           height={1254}
                           sizes="(max-width: 560px) 100vw, (max-width: 900px) 50vw, 25vw"
                           src={item.image}
@@ -316,15 +337,15 @@ export default function RecordPage() {
         <section className="product-state shell" aria-live="polite">
           {loading ? (
             <>
-              <p className="eyebrow">正在尋找唱片</p>
-              <h1>唱片資料載入中</h1>
+              <p className="eyebrow">{text.detail.loadingEyebrow}</p>
+              <h1>{text.detail.loadingTitle}</h1>
             </>
           ) : (
             <>
-              <p className="eyebrow">找不到唱片</p>
-              <h1>這張唱片目前不在架上</h1>
-              <p>它可能已經下架，或網址已經變更。</p>
-              <Link href="/">返回全部唱片</Link>
+              <p className="eyebrow">{text.detail.missingEyebrow}</p>
+              <h1>{text.detail.missingTitle}</h1>
+              <p>{text.detail.missingHint}</p>
+              <Link href="/">{text.detail.returnAll}</Link>
             </>
           )}
         </section>
@@ -335,18 +356,18 @@ export default function RecordPage() {
           <Link
             className="wordmark footer-brand"
             href="/"
-            aria-label="Utopia Vinyl 首頁"
+            aria-label={text.home.ariaHome}
           >
             <Image
-              alt="Utopia Vinyl 黑膠理想國"
+              alt={text.home.logoAlt}
               className="brand-logo footer-logo"
               height={1024}
               src="/utopia-vinyl.png"
               width={1536}
             />
           </Link>
-          <p>自 2009 年起，為愛樂人收藏每一種聲音。</p>
-          <p className="copyright">© 2026 Utopia Vinyl・版權所有</p>
+          <p>{text.home.footer}</p>
+          <p className="copyright">{text.home.copyright}</p>
         </div>
       </footer>
     </main>

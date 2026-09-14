@@ -192,6 +192,39 @@ input:focus-visible {
   gap: 7px;
 }
 
+.language-switcher {
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  color: var(--red);
+  background: transparent;
+  cursor: pointer;
+}
+
+.language-switcher svg {
+  width: 16px;
+  flex: 0 0 auto;
+}
+
+.language-switcher select {
+  min-width: 76px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.language-switcher:focus-within {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+}
+
 .header-actions button {
   width: 38px;
   height: 38px;
@@ -238,7 +271,9 @@ input:focus-visible {
   background: transparent;
   color: inherit;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .nav-item:last-child > button,
@@ -843,7 +878,9 @@ input:focus-visible {
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .purchase-button:hover {
@@ -1297,6 +1334,16 @@ footer {
   .header-actions button {
     width: 35px;
     height: 35px;
+  }
+
+  .language-switcher {
+    height: 35px;
+    padding-inline: 6px;
+  }
+
+  .language-switcher select {
+    min-width: 64px;
+    font-size: 10px;
   }
 
   .collection-heading {
