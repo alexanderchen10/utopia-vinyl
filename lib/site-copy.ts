@@ -4,6 +4,7 @@ export const copy = {
   'zh-Hant': {
     language: '語言',
     nav: {
+      home: '首頁',
       newArrivals: '新到唱片',
       specialPrices: '特價唱片',
       classical: '古典',
@@ -12,6 +13,7 @@ export const copy = {
       taiwan: '臺灣黑膠',
     },
     navSub: {
+      home: '回到首頁',
       newArrivals: '最新入庫',
       specialPrices: '優惠收藏',
       classical: '按作曲家索引',
@@ -114,6 +116,7 @@ export const copy = {
   en: {
     language: 'Language',
     nav: {
+      home: 'Home',
       newArrivals: 'New Arrivals',
       specialPrices: 'Special Prices',
       classical: 'Classical',
@@ -122,6 +125,7 @@ export const copy = {
       taiwan: 'Taiwan Records',
     },
     navSub: {
+      home: 'Back to home',
       newArrivals: 'Latest arrivals',
       specialPrices: 'Special offers',
       classical: 'Browse by composer',

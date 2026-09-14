@@ -23,6 +23,7 @@ import { initialRecords, type VinylRecord } from '@/lib/catalog';
 import { categoryNames, copy } from '@/lib/site-copy';
 
 const navigation = [
+  { id: 'home', key: 'home' },
   { id: 'new-arrivals', key: 'newArrivals' },
   { id: 'special-prices', key: 'specialPrices' },
   { id: 'classical', key: 'classical', submenuKey: 'classical' },
@@ -139,7 +140,9 @@ export default function RecordPage() {
           <div className="category-inner shell">
             {navigation.map((item) => (
               <div className="nav-item" key={item.id}>
-                <Link href={`/?collection=${item.id}`}>
+                <Link
+                  href={item.id === 'home' ? '/' : `/?collection=${item.id}`}
+                >
                   <span>{text.nav[item.key as keyof typeof text.nav]}</span>
                   <small>
                     {text.navSub[item.key as keyof typeof text.navSub]}

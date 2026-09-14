@@ -27,7 +27,8 @@ import { copy } from '@/lib/site-copy';
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 const navigation = [
-  { id: 'new-arrivals', key: 'newArrivals', accent: true },
+  { id: 'home', key: 'home', accent: true },
+  { id: 'new-arrivals', key: 'newArrivals' },
   { id: 'special-prices', key: 'specialPrices' },
   {
     id: 'classical',
@@ -47,7 +48,7 @@ export default function Home() {
   const [language, setLanguage] = useSiteLanguage();
   const text = copy[language];
   const [records, setRecords] = useState<VinylRecord[]>(initialRecords);
-  const [selected, setSelected] = useState('new-arrivals');
+  const [selected, setSelected] = useState('home');
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const selectedNav =
@@ -55,19 +56,25 @@ export default function Home() {
   const selectedNavLabel = text.nav[selectedNav.key as keyof typeof text.nav];
   const selectedNavSubtitle =
     text.navSub[selectedNav.key as keyof typeof text.navSub];
+  const collectionTitle =
+    selected === 'home' ? text.nav.newArrivals : selectedNavLabel;
+  const collectionSubtitle =
+    selected === 'home' ? text.navSub.newArrivals : selectedNavSubtitle;
   const hasAlphabet = selected === 'classical' || selected === 'jazz';
   const normalizedSearch = searchQuery.trim().toLocaleLowerCase();
   const selectedCategoryRecords = records.filter((record) =>
-    selected === 'special-prices'
-      ? isSpecialPrice(record)
-      : record.category === selected,
+    selected === 'home' || selected === 'new-arrivals'
+      ? record.newArrival
+      : selected === 'special-prices'
+        ? isSpecialPrice(record)
+        : record.category === selected,
   );
   const availableLetters = new Set(
     selectedCategoryRecords.flatMap((record) => record.indexLetters),
   );
   const filteredRecords = records.filter((record) => {
     const matchesCollection =
-      selected === 'new-arrivals'
+      selected === 'home' || selected === 'new-arrivals'
         ? record.newArrival
         : selected === 'special-prices'
           ? isSpecialPrice(record)
@@ -125,9 +132,13 @@ export default function Home() {
   function selectCollection(id: string) {
     setSelected(id);
     setSelectedLetter(null);
-    document
-      .querySelector('.collection-heading')
-      ?.scrollIntoView({ behavior: 'smooth' });
+    if (id === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      document
+        .querySelector('.collection-heading')
+        ?.scrollIntoView({ behavior: 'smooth' });
+    }
   }
 
   return (
@@ -235,32 +246,34 @@ export default function Home() {
         </nav>
       </header>
 
-      <section className="landing-hero shell" aria-labelledby="landing-title">
-        <div className="landing-hero-copy">
-          <p className="eyebrow">{text.home.landingEyebrow}</p>
-          <h1 id="landing-title">{text.home.landingTitle}</h1>
-          <p className="landing-message">{text.home.landingMessage}</p>
-          <a className="landing-cta" href="#new-arrivals">
-            {text.home.landingCta}
-            <span aria-hidden="true">↓</span>
-          </a>
-        </div>
-        <div className="landing-hero-mark" aria-hidden="true">
-          <span>U</span>
-          <small>
-            UTOPIA
-            <br />
-            VINYL
-          </small>
-        </div>
-      </section>
+      {selected === 'home' ? (
+        <section className="landing-hero shell" aria-labelledby="landing-title">
+          <div className="landing-hero-copy">
+            <p className="eyebrow">{text.home.landingEyebrow}</p>
+            <h1 id="landing-title">{text.home.landingTitle}</h1>
+            <p className="landing-message">{text.home.landingMessage}</p>
+            <a className="landing-cta" href="#new-arrivals">
+              {text.home.landingCta}
+              <span aria-hidden="true">↓</span>
+            </a>
+          </div>
+          <div className="landing-hero-mark" aria-hidden="true">
+            <span>U</span>
+            <small>
+              UTOPIA
+              <br />
+              VINYL
+            </small>
+          </div>
+        </section>
+      ) : null}
 
       <section className="collection-heading shell" id="new-arrivals">
         <p className="eyebrow">{text.home.collectionEyebrow}</p>
         <div className="title-line">
           <div>
-            <h1>{selectedNavLabel}</h1>
-            <p>{selectedNavSubtitle}</p>
+            <h1>{collectionTitle}</h1>
+            <p>{collectionSubtitle}</p>
           </div>
           <span className="count-pill">
             {text.home.count(filteredRecords.length)}
@@ -276,27 +289,31 @@ export default function Home() {
           </div>
           <div className="filter-group">
             <h2>{text.home.category}</h2>
-            {navigation.slice(1).map((item) => (
-              <button
-                aria-pressed={selected === item.id}
-                key={item.id}
-                onClick={() => selectCollection(item.id)}
-                type="button"
-              >
-                {text.nav[item.key as keyof typeof text.nav]}
-                {item.id === 'classical'
-                  ? text.home.classicalMusic
-                  : item.id === 'jazz'
-                    ? text.home.jazzMusic
-                    : ''}{' '}
-                <span>
-                  {item.id === 'special-prices'
-                    ? records.filter(isSpecialPrice).length
-                    : records.filter((record) => record.category === item.id)
-                        .length}
-                </span>
-              </button>
-            ))}
+            {navigation
+              .filter((item) => item.id !== 'home')
+              .map((item) => (
+                <button
+                  aria-pressed={selected === item.id}
+                  key={item.id}
+                  onClick={() => selectCollection(item.id)}
+                  type="button"
+                >
+                  {item.id === 'classical'
+                    ? text.home.classicalMusic
+                    : item.id === 'jazz'
+                      ? text.home.jazzMusic
+                      : text.nav[item.key as keyof typeof text.nav]}{' '}
+                  <span>
+                    {item.id === 'new-arrivals'
+                      ? records.filter((record) => record.newArrival).length
+                      : item.id === 'special-prices'
+                        ? records.filter(isSpecialPrice).length
+                        : records.filter(
+                            (record) => record.category === item.id,
+                          ).length}
+                  </span>
+                </button>
+              ))}
           </div>
           <div className="filter-group">
             <h2>{text.home.nameIndex}</h2>
