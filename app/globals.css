@@ -347,6 +347,100 @@ input:focus-visible {
   letter-spacing: 0.08em;
 }
 
+.landing-hero {
+  min-height: 460px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  align-items: center;
+  gap: 64px;
+  padding-top: 84px;
+  padding-bottom: 82px;
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-hero-copy {
+  max-width: 780px;
+}
+
+.landing-hero-copy h1 {
+  margin: 0;
+  font-family: 'Noto Serif TC', 'Songti TC', Georgia, serif;
+  font-size: clamp(62px, 9vw, 132px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 0.96;
+}
+
+.landing-message {
+  max-width: 650px;
+  margin: 30px 0 26px;
+  color: var(--ink-soft);
+  font-family: 'Noto Serif TC', 'Songti TC', Georgia, serif;
+  font-size: 17px;
+  line-height: 2;
+}
+
+.landing-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--foreground);
+  color: var(--red);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+
+.landing-cta span {
+  font-size: 19px;
+  line-height: 0.7;
+}
+
+.landing-hero-mark {
+  width: 220px;
+  height: 220px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  border: 1px solid var(--foreground);
+  border-radius: 50%;
+  color: var(--red);
+}
+
+.landing-hero-mark::before,
+.landing-hero-mark::after {
+  position: absolute;
+  inset: 16px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  content: '';
+}
+
+.landing-hero-mark::after {
+  inset: 74px;
+  border-color: var(--red);
+}
+
+.landing-hero-mark span {
+  z-index: 1;
+  font-family: Georgia, serif;
+  font-size: 78px;
+  line-height: 1;
+}
+
+.landing-hero-mark small {
+  position: absolute;
+  bottom: 43px;
+  z-index: 2;
+  padding: 2px 6px;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  line-height: 1.35;
+  text-align: center;
+}
+
 .mini-alphabet {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
@@ -1266,6 +1360,27 @@ footer {
     padding-top: 82px;
   }
 
+  .landing-hero {
+    min-height: 400px;
+    grid-template-columns: minmax(0, 1fr) 160px;
+    gap: 30px;
+    padding-top: 64px;
+    padding-bottom: 62px;
+  }
+
+  .landing-hero-mark {
+    width: 160px;
+    height: 160px;
+  }
+
+  .landing-hero-mark span {
+    font-size: 58px;
+  }
+
+  .landing-hero-mark small {
+    bottom: 26px;
+  }
+
   .product-detail {
     grid-template-columns: 1fr;
     gap: 38px;
@@ -1349,6 +1464,45 @@ footer {
   .collection-heading {
     padding-top: 62px;
     padding-bottom: 44px;
+  }
+
+  .landing-hero {
+    min-height: 0;
+    display: block;
+    padding-top: 56px;
+    padding-bottom: 54px;
+  }
+
+  .landing-hero-copy h1 {
+    font-size: 62px;
+  }
+
+  .landing-message {
+    margin-top: 24px;
+    font-size: 15px;
+  }
+
+  .landing-hero-mark {
+    width: 128px;
+    height: 128px;
+    margin-top: 36px;
+  }
+
+  .landing-hero-mark span {
+    font-size: 48px;
+  }
+
+  .landing-hero-mark::before {
+    inset: 10px;
+  }
+
+  .landing-hero-mark::after {
+    inset: 43px;
+  }
+
+  .landing-hero-mark small {
+    bottom: 17px;
+    font-size: 6px;
   }
 
   .title-line {

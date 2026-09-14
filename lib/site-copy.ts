@@ -32,8 +32,11 @@ export const copy = {
       mainNav: '主要分類',
       collectionEyebrow: '精選收藏',
       count: (count: number) => `${count} 張唱片`,
-      intro:
+      landingMessage:
         '歡迎來到 Utopia Vinyl。請盡情瀏覽，享受尋找唱片的樂趣。我們擁有豐富的黑膠唱片收藏，自 2009 年起營業至今。',
+      landingEyebrow: 'UTOPIA VINYL・自 2009 年起',
+      landingTitle: '黑膠理想國',
+      landingCta: '瀏覽新到唱片',
       browse: '瀏覽方式',
       category: '分類',
       nameIndex: '姓名索引',
@@ -139,8 +142,11 @@ export const copy = {
       mainNav: 'Main categories',
       collectionEyebrow: 'Featured collection',
       count: (count: number) => `${count} records`,
-      intro:
+      landingMessage:
         'Welcome to Utopia Vinyl. Enjoy your experience browsing around. We have tons of vinyl records and have been operating since 2009.',
+      landingEyebrow: 'UTOPIA VINYL・SINCE 2009',
+      landingTitle: 'A home for records',
+      landingCta: 'Browse new arrivals',
       browse: 'Browse',
       category: 'Categories',
       nameIndex: 'Name index',

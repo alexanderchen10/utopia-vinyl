@@ -235,6 +235,26 @@ export default function Home() {
         </nav>
       </header>
 
+      <section className="landing-hero shell" aria-labelledby="landing-title">
+        <div className="landing-hero-copy">
+          <p className="eyebrow">{text.home.landingEyebrow}</p>
+          <h1 id="landing-title">{text.home.landingTitle}</h1>
+          <p className="landing-message">{text.home.landingMessage}</p>
+          <a className="landing-cta" href="#new-arrivals">
+            {text.home.landingCta}
+            <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+        <div className="landing-hero-mark" aria-hidden="true">
+          <span>U</span>
+          <small>
+            UTOPIA
+            <br />
+            VINYL
+          </small>
+        </div>
+      </section>
+
       <section className="collection-heading shell" id="new-arrivals">
         <p className="eyebrow">{text.home.collectionEyebrow}</p>
         <div className="title-line">
@@ -246,7 +266,6 @@ export default function Home() {
             {text.home.count(filteredRecords.length)}
           </span>
         </div>
-        <p className="intro">{text.home.intro}</p>
       </section>
 
       <div className="catalog shell">
