@@ -278,6 +278,28 @@ export default function Home() {
           <div className="about-copy">
             <h2>{text.home.aboutTitle}</h2>
             <p>{text.home.aboutBody}</p>
+            <div className="about-timeline">
+              {text.home.aboutTimeline.map(([year, detail], index) => (
+                <article className="about-event" key={year}>
+                  <span className="about-year">{year}</span>
+                  <div className="about-event-copy">
+                    {index === 0 ? (
+                      <>
+                        <Image
+                          alt={text.home.aboutImageAlt}
+                          className="about-history-image"
+                          height={70}
+                          src="/utopia-vinyl-2009.png"
+                          width={238}
+                        />
+                        <small>{text.home.aboutImageCaption}</small>
+                      </>
+                    ) : null}
+                    <p>{detail}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
             <Link className="landing-cta" href="/?collection=new-arrivals">
               {text.home.aboutCta}
               <span aria-hidden="true">→</span>

@@ -42,8 +42,15 @@ export const copy = {
       aboutEyebrow: 'ABOUT UTOPIA VINYL',
       aboutTitle: '關於我們',
       aboutBody:
-        'Utopia Vinyl 專注於收藏與分享古典、爵士、流行及臺灣黑膠唱片。從作曲家、演奏家到樂團，每一張唱片都可以慢慢探索。',
+        'Utopia Vinyl 的故事，從 2009 年在 MyAV 視聽商情網開始；2019 年與 eslite 誠品展開合作，並在 2026 年推出全新的數位唱片商店。',
       aboutCta: '瀏覽唱片收藏',
+      aboutImageAlt: 'Utopia Vinyl 2009 年在 MyAV 視聽商情網的早期標誌',
+      aboutImageCaption: '2009・MyAV 視聽商情網',
+      aboutTimeline: [
+        ['2009', 'Utopia Vinyl 於 2009 年在 MyAV 視聽商情網開始。'],
+        ['2019', 'Utopia Vinyl 與 eslite 誠品開始合作。'],
+        ['2026', 'Utopia Vinyl 正式推出全新的數位唱片商店。'],
+      ],
       browse: '瀏覽方式',
       category: '分類',
       nameIndex: '姓名索引',
@@ -159,8 +166,15 @@ export const copy = {
       aboutEyebrow: 'ABOUT UTOPIA VINYL',
       aboutTitle: 'About us',
       aboutBody:
-        'Utopia Vinyl is a home for classical, jazz, popular and Taiwanese records. Explore slowly by composer, performer, group or genre, and find a sound to keep.',
+        'Utopia Vinyl began in 2009 on MyAV 視聽商情網. In 2019, Utopia Vinyl began working with eslite 誠品. In 2026, it is launching its brand-new digital record store.',
       aboutCta: 'Browse the collection',
+      aboutImageAlt: 'Utopia Vinyl early logo on MyAV 視聽商情網 in 2009',
+      aboutImageCaption: '2009・MyAV 視聽商情網',
+      aboutTimeline: [
+        ['2009', 'Utopia Vinyl started on MyAV 視聽商情網.'],
+        ['2019', 'Utopia Vinyl began working with eslite 誠品.'],
+        ['2026', 'Utopia Vinyl launches its brand-new digital record store.'],
+      ],
       browse: 'Browse',
       category: 'Categories',
       nameIndex: 'Name index',
