@@ -295,6 +295,18 @@ export default function Home() {
                         <small>{text.home.aboutImageCaption}</small>
                       </>
                     ) : null}
+                    {index === 1 ? (
+                      <>
+                        <Image
+                          alt={text.home.aboutEsliteImageAlt}
+                          className="about-history-image about-history-image--eslite"
+                          height={360}
+                          src="/eslite-logo.png"
+                          width={540}
+                        />
+                        <small>{text.home.aboutEsliteImageCaption}</small>
+                      </>
+                    ) : null}
                     <p>{detail}</p>
                   </div>
                 </article>

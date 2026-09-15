@@ -46,6 +46,8 @@ export const copy = {
       aboutCta: '瀏覽唱片收藏',
       aboutImageAlt: 'Utopia Vinyl 2009 年在 MyAV 視聽商情網的早期標誌',
       aboutImageCaption: '2009・MyAV 視聽商情網',
+      aboutEsliteImageAlt: 'eslite 誠品標誌',
+      aboutEsliteImageCaption: '2019・eslite 誠品',
       aboutTimeline: [
         ['2009', 'Utopia Vinyl 於 2009 年在 MyAV 視聽商情網開始。'],
         ['2019', 'Utopia Vinyl 與 eslite 誠品開始合作。'],
@@ -170,6 +172,8 @@ export const copy = {
       aboutCta: 'Browse the collection',
       aboutImageAlt: 'Utopia Vinyl early logo on MyAV 視聽商情網 in 2009',
       aboutImageCaption: '2009・MyAV 視聽商情網',
+      aboutEsliteImageAlt: 'eslite 誠品 logo',
+      aboutEsliteImageCaption: '2019・eslite 誠品',
       aboutTimeline: [
         ['2009', 'Utopia Vinyl started on MyAV 視聽商情網.'],
         ['2019', 'Utopia Vinyl began working with eslite 誠品.'],
