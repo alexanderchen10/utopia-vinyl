@@ -432,9 +432,7 @@ export default function AddRecordPage() {
           <Link aria-current="page" href="/admin">
             新增唱片
           </Link>
-          <Link href="/admin/records" rel="noreferrer" target="_blank">
-            管理唱片
-          </Link>
+          <Link href="/admin/records">管理唱片</Link>
         </div>
       </nav>
 
