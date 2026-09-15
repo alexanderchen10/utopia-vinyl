@@ -482,30 +482,32 @@ export default function Home() {
         </>
       )}
 
-      <section className="reviews-section" aria-labelledby="reviews-title">
-        <div className="shell">
-          <div className="reviews-heading">
-            <div>
-              <p className="eyebrow">{text.home.reviewsEyebrow}</p>
-              <h2 id="reviews-title">{text.home.reviewsTitle}</h2>
+      {selected === 'home' ? (
+        <section className="reviews-section" aria-labelledby="reviews-title">
+          <div className="shell">
+            <div className="reviews-heading">
+              <div>
+                <p className="eyebrow">{text.home.reviewsEyebrow}</p>
+                <h2 id="reviews-title">{text.home.reviewsTitle}</h2>
+              </div>
+              <p>{text.home.reviewsIntro}</p>
             </div>
-            <p>{text.home.reviewsIntro}</p>
+            <div className="review-grid">
+              {text.home.reviews.map(([quote, author]) => (
+                <figure className="review-card" key={author}>
+                  <blockquote>{quote}</blockquote>
+                  <figcaption>
+                    <span className="review-stars" aria-label={text.home.stars}>
+                      ★★★★★
+                    </span>
+                    <cite>{author}</cite>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
           </div>
-          <div className="review-grid">
-            {text.home.reviews.map(([quote, author]) => (
-              <figure className="review-card" key={author}>
-                <blockquote>{quote}</blockquote>
-                <figcaption>
-                  <span className="review-stars" aria-label={text.home.stars}>
-                    ★★★★★
-                  </span>
-                  <cite>{author}</cite>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       <footer>
         <div className="shell footer-inner">
