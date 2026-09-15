@@ -496,10 +496,12 @@ input:focus-visible {
   height: auto;
   margin: 0 0 7px;
   border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: 0 8px 18px rgba(23, 23, 23, 0.08);
 }
 
 .about-history-image--eslite {
-  padding: 10px;
+  padding: 12px 20px;
   background: var(--paper);
 }
 
@@ -533,9 +535,34 @@ input:focus-visible {
 }
 
 .collection-heading {
-  padding-top: 112px;
-  padding-bottom: 65px;
-  border-bottom: 1px solid var(--border);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-top: 38px;
+  border: 1px solid #4f5665;
+  border-radius: 10px;
+  background:
+    radial-gradient(ellipse at 9% 112%, transparent 0 17%, rgba(112, 120, 138, 0.22) 17.4% 17.9%, transparent 18.3% 27%, rgba(112, 120, 138, 0.18) 27.4% 27.9%, transparent 28.3% 38%, rgba(112, 120, 138, 0.16) 38.4% 38.9%, transparent 39.3% 49%, rgba(112, 120, 138, 0.14) 49.4% 49.9%, transparent 50.3%),
+    radial-gradient(ellipse at 100% -20%, transparent 0 28%, rgba(112, 120, 138, 0.16) 28.4% 28.9%, transparent 29.3% 41%, rgba(112, 120, 138, 0.14) 41.4% 41.9%, transparent 42.3% 53%, rgba(112, 120, 138, 0.12) 53.4% 53.9%, transparent 54.3%),
+    linear-gradient(135deg, #272c37 0%, #424754 100%);
+  color: #f7f7f2;
+  padding: 78px clamp(24px, 5vw, 72px) 62px;
+  box-shadow: 0 16px 36px rgba(26, 30, 40, 0.12);
+}
+
+.collection-heading::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    repeating-radial-gradient(ellipse at 0% 110%, transparent 0 68px, rgba(214, 220, 232, 0.08) 69px 70px, transparent 71px 104px),
+    linear-gradient(90deg, transparent 0 68%, rgba(241, 239, 97, 0.07) 68.2% 68.4%, transparent 68.6%);
+  content: '';
+  pointer-events: none;
+}
+
+.collection-heading .eyebrow {
+  color: #f1ef61;
 }
 
 .eyebrow {
@@ -561,18 +588,22 @@ input:focus-visible {
   font-weight: 400;
   letter-spacing: 0.04em;
   line-height: 0.98;
+  color: #f7f7f2;
 }
 
 .title-line > div > p {
   margin: 17px 0 0;
-  color: var(--ink-soft);
+  color: #d6d9e2;
   font-size: 11px;
   letter-spacing: 0.27em;
 }
 
 .count-pill {
   padding: 9px 13px;
-  border: 1px solid var(--foreground);
+  border: 1px solid #f1ef61;
+  border-radius: 999px;
+  background: rgba(241, 239, 97, 0.08);
+  color: #f1ef61;
   font-size: 11px;
   letter-spacing: 0.08em;
 }
@@ -1273,7 +1304,7 @@ input:focus-visible {
 .reviews-section {
   padding: 88px 0 108px;
   border-block: 1px solid var(--border);
-  background: #ededeb;
+  background: #eceeeb;
 }
 
 .reviews-heading {
@@ -1311,13 +1342,16 @@ input:focus-visible {
 }
 
 .review-card {
-  min-height: 224px;
+  min-height: 244px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   margin: 0;
-  padding: 27px 28px 24px;
-  background: var(--paper);
+  padding: 36px 38px 30px;
+  border: 1px solid #d4d7dc;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #ffffff 0%, #f4f5f6 100%);
+  box-shadow: 0 14px 28px rgba(50, 56, 67, 0.08);
 }
 
 .review-card blockquote {
@@ -1346,8 +1380,8 @@ input:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 9px;
-  padding-top: 21px;
-  border-top: 1px solid var(--border);
+  padding-top: 17px;
+  border-top: 1px solid #dfe1e5;
 }
 
 .review-stars {
