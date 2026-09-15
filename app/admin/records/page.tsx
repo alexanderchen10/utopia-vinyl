@@ -431,9 +431,7 @@ export default function ManageRecordsPage() {
       <nav aria-label="唱片管理功能" className="admin-section-nav">
         <div className="admin-shell">
           <Link href="/admin">新增唱片</Link>
-          <Link aria-current="page" href="/admin/records">
-            管理唱片
-          </Link>
+          <Link href="/admin">管理唱片</Link>
         </div>
       </nav>
 
