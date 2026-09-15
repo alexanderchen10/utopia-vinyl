@@ -794,7 +794,6 @@ export default function ManageRecordsPage() {
                       }
                       value={editing.condition}
                     >
-                      <option>品相待確認</option>
                       <option>全新未拆</option>
                       <option>近全新</option>
                       <option>保存良好</option>

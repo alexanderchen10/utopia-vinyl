@@ -165,7 +165,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       readText(formData, 'label', 120),
       readText(formData, 'catalogNumber', 80),
       readText(formData, 'price', 50) || '價格待定',
-      readText(formData, 'condition', 80) || '品相待確認',
+      readText(formData, 'condition', 80) || '保存良好',
       readText(formData, 'conditionNotes', 600),
       imageUrl,
       hasReplacementImage ? 'image/jpeg' : current.image_content_type,

@@ -782,8 +782,7 @@ export default function AddRecordPage() {
             </div>
             <div className="form-field">
               <label htmlFor="condition">品相</label>
-              <select defaultValue="品相待確認" id="condition" name="condition">
-                <option>品相待確認</option>
+              <select defaultValue="保存良好" id="condition" name="condition">
                 <option>全新未拆</option>
                 <option>近全新</option>
                 <option>保存良好</option>
