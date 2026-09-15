@@ -5,6 +5,34 @@
     {
       "idx": 0,
       "version": "7",
+      "when": 1789481230342,
+      "tag": "0001_records",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789481231342,
+      "tag": "0002_record_images",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789481232342,
+      "tag": "0003_admin_login_attempts",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789481233342,
+      "tag": "0004_admin_ai_usage",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
       "when": 1789481234342,
       "tag": "0005_condition_notes",
       "breakpoints": true
