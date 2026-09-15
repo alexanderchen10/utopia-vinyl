@@ -710,6 +710,55 @@ main.admin-page {
   color: white;
 }
 
+.admin-page.manage-page .manage-category-filter {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 12px 0 2px;
+}
+
+.admin-page.manage-page .manage-category-filter > span {
+  flex: 0 0 auto;
+  color: var(--admin-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.admin-page.manage-page .manage-category-filter > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.admin-page.manage-page .manage-category-filter button {
+  min-height: 35px;
+  padding: 0 13px;
+  border: 1px solid var(--admin-border-strong);
+  border-radius: 999px;
+  background: var(--admin-surface);
+  color: var(--admin-muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.admin-page.manage-page .manage-category-filter button:hover {
+  border-color: var(--admin-accent);
+  color: var(--admin-accent-dark);
+}
+
+.admin-page.manage-page .manage-category-filter button[aria-pressed='true'] {
+  border-color: var(--admin-accent);
+  background: #eaf3ff;
+  color: var(--admin-accent-dark);
+}
+
 .admin-page.manage-page .manage-notice,
 .admin-page.manage-page .manage-empty,
 .admin-page.manage-page .manage-record {
@@ -959,6 +1008,11 @@ main.admin-page {
   }
   .admin-page .manage-summary > a {
     grid-column: 1 / -1;
+  }
+  .admin-page.manage-page .manage-category-filter {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
   }
 }
 

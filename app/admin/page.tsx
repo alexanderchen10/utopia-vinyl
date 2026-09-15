@@ -432,23 +432,11 @@ export default function AddRecordPage() {
           <Link aria-current="page" href="/admin">
             新增唱片
           </Link>
-          <Link href="/admin/records">管理唱片</Link>
+          <Link href="/admin/records" rel="noreferrer" target="_blank">
+            管理唱片
+          </Link>
         </div>
       </nav>
-
-      <div className="admin-steps" aria-label="新增唱片步驟">
-        <div className="admin-shell">
-          <p>
-            <span>1</span> 加入封面照片
-          </p>
-          <p>
-            <span>2</span> 填寫唱片資料
-          </p>
-          <p>
-            <span>3</span> 儲存或上架
-          </p>
-        </div>
-      </div>
 
       <form
         className="record-form admin-shell"

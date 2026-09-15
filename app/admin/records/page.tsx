@@ -62,6 +62,7 @@ const maximumOriginalImageBytes = 20 * 1024 * 1024;
 
 type ManagedRecord = VinylRecord & { status: RecordStatus };
 type StatusFilter = 'all' | RecordStatus;
+type CategoryFilter = 'all' | RecordCategory;
 type LoadState = 'loading' | 'ready' | 'error';
 
 function withRequiredStatus(record: VinylRecord): ManagedRecord {
@@ -101,6 +102,7 @@ export default function ManageRecordsPage() {
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [editing, setEditing] = useState<ManagedRecord | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ManagedRecord | null>(null);
   const [busyId, setBusyId] = useState('');
@@ -363,6 +365,8 @@ export default function ManageRecordsPage() {
   const filteredRecords = records.filter((record) => {
     const matchesStatus =
       statusFilter === 'all' || record.status === statusFilter;
+    const matchesCategory =
+      categoryFilter === 'all' || record.category === categoryFilter;
     const searchable = [
       record.title,
       record.composers,
@@ -374,6 +378,7 @@ export default function ManageRecordsPage() {
       .toLocaleLowerCase();
     return (
       matchesStatus &&
+      matchesCategory &&
       (!normalizedQuery || searchable.includes(normalizedQuery))
     );
   });
@@ -474,6 +479,27 @@ export default function ManageRecordsPage() {
                 aria-pressed={statusFilter === value}
                 key={value}
                 onClick={() => setStatusFilter(value)}
+                type="button"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div aria-label="依唱片分類瀏覽" className="manage-category-filter">
+          <span>依分類瀏覽</span>
+          <div>
+            {(
+              [['all', '全部'], ...Object.entries(categoryLabels)] as [
+                CategoryFilter,
+                string,
+              ][]
+            ).map(([value, label]) => (
+              <button
+                aria-pressed={categoryFilter === value}
+                key={value}
+                onClick={() => setCategoryFilter(value)}
                 type="button"
               >
                 {label}
