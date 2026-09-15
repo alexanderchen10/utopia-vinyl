@@ -496,7 +496,7 @@ input:focus-visible {
   height: auto;
   margin: 0 0 7px;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 26px;
   box-shadow: 0 8px 18px rgba(23, 23, 23, 0.08);
 }
 
@@ -601,7 +601,7 @@ input:focus-visible {
 .count-pill {
   padding: 9px 13px;
   border: 1px solid #f1ef61;
-  border-radius: 999px;
+  border-radius: 10px;
   background: rgba(241, 239, 97, 0.08);
   color: #f1ef61;
   font-size: 11px;
@@ -1349,7 +1349,7 @@ input:focus-visible {
   margin: 0;
   padding: 36px 38px 30px;
   border: 1px solid #d4d7dc;
-  border-radius: 999px;
+  border-radius: 28px;
   background: linear-gradient(145deg, #ffffff 0%, #f4f5f6 100%);
   box-shadow: 0 14px 28px rgba(50, 56, 67, 0.08);
 }
