@@ -225,6 +225,13 @@ export default function RecordPage() {
                 </div>
               </dl>
 
+              {record.conditionNotes ? (
+                <dl className="product-condition-notes">
+                  <dt>{text.detail.conditionNotes}</dt>
+                  <dd>{record.conditionNotes}</dd>
+                </dl>
+              ) : null}
+
               <div className="product-price-row">
                 <strong>{record.price}</strong>
                 <span>{text.detail.shipping}</span>

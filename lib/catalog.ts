@@ -15,6 +15,7 @@ export type VinylRecord = {
   newArrival: boolean;
   price: string;
   condition: string;
+  conditionNotes: string;
   status?: RecordStatus;
   createdAt?: string;
 };
@@ -49,6 +50,7 @@ export const initialRecords: VinylRecord[] = [
     newArrival: true,
     price: '價格待定',
     condition: '品相待確認',
+    conditionNotes: '',
     status: 'published',
     createdAt: '2026-09-02T00:00:00.000Z',
   },
@@ -66,6 +68,7 @@ export const initialRecords: VinylRecord[] = [
     newArrival: true,
     price: '價格待定',
     condition: '品相待確認',
+    conditionNotes: '',
     status: 'published',
     createdAt: '2026-09-03T00:00:00.000Z',
   },

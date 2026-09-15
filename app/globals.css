@@ -983,6 +983,28 @@ input:focus-visible {
   text-align: right;
 }
 
+.product-condition-notes {
+  margin: 0;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.product-condition-notes dt {
+  margin-bottom: 7px;
+  color: #8b8b85;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.product-condition-notes dd {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
 .product-price-row {
   display: flex;
   align-items: center;

@@ -11,6 +11,7 @@ type RecordRow = {
   catalog_number: string;
   price: string;
   condition: string;
+  condition_notes: string;
   image_url: string;
   is_new_arrival: number;
   status: RecordStatus;
@@ -23,7 +24,9 @@ export function mapRecordRow(row: RecordRow): VinylRecord {
   try {
     const parsed = JSON.parse(row.index_letters) as unknown;
     if (Array.isArray(parsed)) {
-      indexLetters = parsed.filter((value): value is string => typeof value === 'string');
+      indexLetters = parsed.filter(
+        (value): value is string => typeof value === 'string',
+      );
     }
   } catch {
     indexLetters = [];
@@ -42,6 +45,7 @@ export function mapRecordRow(row: RecordRow): VinylRecord {
     newArrival: row.is_new_arrival === 1,
     price: row.price,
     condition: row.condition,
+    conditionNotes: row.condition_notes,
     status: row.status,
     createdAt: row.created_at,
   };
@@ -51,7 +55,7 @@ export async function listPublishedRecords(db: D1Database) {
   const result = await db
     .prepare(
       `SELECT id, title, composers, performers, category, index_letters,
-        label, catalog_number, price, condition, image_url, is_new_arrival,
+        label, catalog_number, price, condition, condition_notes, image_url, is_new_arrival,
         status, created_at
       FROM records
       WHERE status = ?
@@ -67,7 +71,7 @@ export async function listAdminRecords(db: D1Database) {
   const result = await db
     .prepare(
       `SELECT id, title, composers, performers, category, index_letters,
-        label, catalog_number, price, condition, image_url, is_new_arrival,
+        label, catalog_number, price, condition, condition_notes, image_url, is_new_arrival,
         status, created_at
       FROM records
       ORDER BY updated_at DESC, created_at DESC`,

@@ -792,6 +792,20 @@ export default function AddRecordPage() {
             </div>
           </div>
 
+          <div className="form-field full-field condition-notes-field">
+            <label htmlFor="conditionNotes">唱片品相描述</label>
+            <textarea
+              id="conditionNotes"
+              maxLength={600}
+              name="conditionNotes"
+              placeholder="例如：封面有輕微磨損，唱片表面乾淨，播放狀況良好。"
+              rows={4}
+            />
+            <small className="field-hint">
+              可補充封面、唱片表面或播放時的狀況，讓客人更清楚了解品相。
+            </small>
+          </div>
+
           {needsIndex ? (
             <fieldset
               className={`index-field ${needsReview('indexLetters') ? 'needs-review' : ''}`}
