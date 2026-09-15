@@ -1,8 +1,9 @@
 'use client';
 
+/* oxlint-disable next/no-html-link-for-pages -- native anchors keep private admin navigation reliable. */
+
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -404,11 +405,7 @@ export default function AddRecordPage() {
       </div>
 
       <header className="admin-header admin-shell">
-        <Link
-          className="admin-brand"
-          href="/"
-          aria-label="回到 Utopia Vinyl 商店"
-        >
+        <a className="admin-brand" href="/" aria-label="回到 Utopia Vinyl 商店">
           <Image
             alt="Utopia Vinyl 黑膠理想國"
             height={1024}
@@ -416,23 +413,23 @@ export default function AddRecordPage() {
             src="/utopia-vinyl.png"
             width={1536}
           />
-        </Link>
+        </a>
         <div className="admin-heading">
           <p>唱片管理</p>
           <h1>新增唱片</h1>
           <span>填完資料後，就可以直接放進商店。</span>
         </div>
-        <Link className="back-to-shop" href="/">
+        <a className="back-to-shop" href="/">
           <ArrowLeft aria-hidden="true" /> 回到商店
-        </Link>
+        </a>
       </header>
 
       <nav aria-label="唱片管理功能" className="admin-section-nav">
         <div className="admin-shell">
-          <Link aria-current="page" href="/admin">
+          <a aria-current="page" href="/admin">
             新增唱片
-          </Link>
-          <Link href="/admin/records">管理唱片</Link>
+          </a>
+          <a href="/admin/records">管理唱片</a>
         </div>
       </nav>
 

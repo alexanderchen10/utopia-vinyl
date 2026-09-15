@@ -1,5 +1,7 @@
 'use client';
 
+/* oxlint-disable next/no-html-link-for-pages -- native anchors keep private admin navigation reliable. */
+
 import {
   useCallback,
   useEffect,
@@ -8,7 +10,6 @@ import {
   type SyntheticEvent,
 } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -405,11 +406,7 @@ export default function ManageRecordsPage() {
       </div>
 
       <header className="admin-header admin-shell">
-        <Link
-          aria-label="回到 Utopia Vinyl 商店"
-          className="admin-brand"
-          href="/"
-        >
+        <a aria-label="回到 Utopia Vinyl 商店" className="admin-brand" href="/">
           <Image
             alt="Utopia Vinyl 黑膠理想國"
             height={1024}
@@ -417,21 +414,21 @@ export default function ManageRecordsPage() {
             src="/utopia-vinyl.png"
             width={1536}
           />
-        </Link>
+        </a>
         <div className="admin-heading">
           <p>唱片管理</p>
           <h1>管理唱片</h1>
           <span>修改資料、暫時隱藏，或永久刪除唱片。</span>
         </div>
-        <Link className="back-to-shop" href="/">
+        <a className="back-to-shop" href="/">
           <ArrowLeft aria-hidden="true" /> 回到商店
-        </Link>
+        </a>
       </header>
 
       <nav aria-label="唱片管理功能" className="admin-section-nav">
         <div className="admin-shell">
-          <Link href="/admin">新增唱片</Link>
-          <Link href="/admin">管理唱片</Link>
+          <a href="/admin">新增唱片</a>
+          <a href="/admin">管理唱片</a>
         </div>
       </nav>
 
@@ -449,9 +446,9 @@ export default function ManageRecordsPage() {
             <strong>{hiddenCount}</strong>
             <span>已隱藏</span>
           </div>
-          <Link href="/admin">
+          <a href="/admin">
             <Plus aria-hidden="true" /> 新增一張唱片
-          </Link>
+          </a>
         </div>
 
         <div className="manage-toolbar">
@@ -552,7 +549,7 @@ export default function ManageRecordsPage() {
                 ? '新增第一張唱片後，就會出現在這裡。'
                 : '請試試其他搜尋字詞或篩選方式。'}
             </p>
-            {records.length === 0 ? <Link href="/admin">新增唱片</Link> : null}
+            {records.length === 0 ? <a href="/admin">新增唱片</a> : null}
           </div>
         ) : null}
 
