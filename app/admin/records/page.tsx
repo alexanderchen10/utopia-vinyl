@@ -787,33 +787,35 @@ export default function ManageRecordsPage() {
                     />
                   </label>
                   <label className="editor-field">
-                    <span>品相</span>
+                    <span>品相等級</span>
                     <select
                       onChange={(event) =>
                         updateEditing('condition', event.target.value)
                       }
-                      value={editing.condition}
-                    >
-                      <option>全新未拆</option>
-                      <option>近全新</option>
-                      <option>保存良好</option>
-                      <option>有使用痕跡</option>
-                    </select>
-                  </label>
-                  <label className="editor-field editor-full">
-                    <span>唱片品相描述</span>
-                    <textarea
-                      maxLength={600}
-                      onChange={(event) =>
-                        updateEditing('conditionNotes', event.target.value)
+                      value={
+                        [
+                          'SS',
+                          'M',
+                          'NM',
+                          'VG ++',
+                          'VG +',
+                          'VG',
+                          'G',
+                          'F',
+                        ].includes(editing.condition)
+                          ? editing.condition
+                          : 'VG'
                       }
-                      placeholder="例如：封面有輕微磨損，唱片表面乾淨，播放狀況良好。"
-                      rows={4}
-                      value={editing.conditionNotes}
-                    />
-                    <small className="field-hint">
-                      可補充封面、唱片表面或播放時的狀況。
-                    </small>
+                    >
+                      <option>SS</option>
+                      <option>M</option>
+                      <option>NM</option>
+                      <option>VG ++</option>
+                      <option>VG +</option>
+                      <option>VG</option>
+                      <option>G</option>
+                      <option>F</option>
+                    </select>
                   </label>
 
                   {editing.category === 'classical' ||

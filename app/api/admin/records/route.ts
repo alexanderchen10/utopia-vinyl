@@ -156,7 +156,7 @@ export async function POST(request: Request) {
   const label = readText(formData, 'label', 120);
   const catalogNumber = readText(formData, 'catalogNumber', 80);
   const price = readText(formData, 'price', 50) || '價格待定';
-  const condition = readText(formData, 'condition', 80) || '保存良好';
+  const condition = readText(formData, 'condition', 80) || 'VG';
   const conditionNotes = readText(formData, 'conditionNotes', 600);
 
   try {

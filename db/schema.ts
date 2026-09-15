@@ -9,7 +9,7 @@ export const recordsSchema = `
     label TEXT NOT NULL DEFAULT '',
     catalog_number TEXT NOT NULL DEFAULT '',
     price TEXT NOT NULL DEFAULT '價格待定',
-    condition TEXT NOT NULL DEFAULT '保存良好',
+    condition TEXT NOT NULL DEFAULT 'VG',
     condition_notes TEXT NOT NULL DEFAULT '',
     image_url TEXT NOT NULL,
     image_key TEXT,
