@@ -623,7 +623,7 @@ export default function AddRecordPage() {
               <div>
                 <strong>請檢查自動填入的內容</strong>
                 <p>
-                  黃色欄位代表辨識結果較不確定；售價和品相需要手動選擇。確認後才按「立即上架」。
+                  黃色欄位代表辨識結果較不確定；售價和品相需要手動填寫。確認後才按「立即上架」。
                 </p>
                 {analysisNotes.length > 0 ? (
                   <ul>
@@ -765,16 +765,12 @@ export default function AddRecordPage() {
             </div>
             <div className="form-field">
               <label htmlFor="condition">品相等級</label>
-              <select defaultValue="VG" id="condition" name="condition">
-                <option>SS</option>
-                <option>M</option>
-                <option>NM</option>
-                <option>VG ++</option>
-                <option>VG +</option>
-                <option>VG</option>
-                <option>G</option>
-                <option>F</option>
-              </select>
+              <input
+                id="condition"
+                maxLength={40}
+                name="condition"
+                placeholder="例如：NM、VG+ 或封面良好"
+              />
             </div>
           </div>
 
