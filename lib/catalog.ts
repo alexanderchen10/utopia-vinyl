@@ -1,6 +1,12 @@
 export type RecordCategory = 'classical' | 'jazz' | 'pop' | 'taiwan';
 
 export type RecordStatus = 'draft' | 'published';
+export type ShopifySyncStatus =
+  | 'not_configured'
+  | 'pending'
+  | 'syncing'
+  | 'synced'
+  | 'failed';
 
 export type VinylRecord = {
   id: string;
@@ -18,6 +24,11 @@ export type VinylRecord = {
   conditionNotes: string;
   status?: RecordStatus;
   createdAt?: string;
+  available?: boolean;
+  shopifySyncStatus?: ShopifySyncStatus;
+  shopifySyncError?: string;
+  shopifySyncedAt?: string;
+  soldAt?: string;
 };
 
 export const categoryLabels: Record<RecordCategory, string> = {

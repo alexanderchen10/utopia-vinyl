@@ -1,4 +1,9 @@
-import type { RecordCategory, RecordStatus, VinylRecord } from '@/lib/catalog';
+import type {
+  RecordCategory,
+  RecordStatus,
+  ShopifySyncStatus,
+  VinylRecord,
+} from '@/lib/catalog';
 
 type RecordRow = {
   id: string;
@@ -16,6 +21,11 @@ type RecordRow = {
   is_new_arrival: number;
   status: RecordStatus;
   created_at: string;
+  available: number;
+  shopify_sync_status: ShopifySyncStatus;
+  shopify_sync_error: string | null;
+  shopify_synced_at: string | null;
+  sold_at: string | null;
 };
 
 export function mapRecordRow(row: RecordRow): VinylRecord {
@@ -48,6 +58,11 @@ export function mapRecordRow(row: RecordRow): VinylRecord {
     conditionNotes: row.condition_notes,
     status: row.status,
     createdAt: row.created_at,
+    available: row.available === 1,
+    shopifySyncStatus: row.shopify_sync_status,
+    shopifySyncError: row.shopify_sync_error ?? undefined,
+    shopifySyncedAt: row.shopify_synced_at ?? undefined,
+    soldAt: row.sold_at ?? undefined,
   };
 }
 
@@ -56,9 +71,10 @@ export async function listPublishedRecords(db: D1Database) {
     .prepare(
       `SELECT id, title, composers, performers, category, index_letters,
         label, catalog_number, price, condition, condition_notes, image_url, is_new_arrival,
-        status, created_at
+        status, created_at, available, shopify_sync_status, shopify_sync_error,
+        shopify_synced_at, sold_at
       FROM records
-      WHERE status = ?
+      WHERE status = ? AND available = 1
       ORDER BY created_at DESC`,
     )
     .bind('published')
@@ -72,7 +88,8 @@ export async function listAdminRecords(db: D1Database) {
     .prepare(
       `SELECT id, title, composers, performers, category, index_letters,
         label, catalog_number, price, condition, condition_notes, image_url, is_new_arrival,
-        status, created_at
+        status, created_at, available, shopify_sync_status, shopify_sync_error,
+        shopify_synced_at, sold_at
       FROM records
       ORDER BY updated_at DESC, created_at DESC`,
     )

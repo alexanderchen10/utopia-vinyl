@@ -20,6 +20,17 @@ export const recordsSchema = `
     updated_at TEXT NOT NULL
   );
 
+  CREATE TABLE IF NOT EXISTS shopify_webhook_receipts (
+    webhook_id TEXT PRIMARY KEY,
+    event_id TEXT,
+    topic TEXT NOT NULL,
+    shop_domain TEXT NOT NULL,
+    received_at TEXT NOT NULL,
+    processed_at TEXT,
+    status TEXT NOT NULL CHECK (status IN ('processing', 'processed', 'ignored', 'failed')),
+    error TEXT
+  );
+
   CREATE INDEX IF NOT EXISTS records_status_created_at
     ON records (status, created_at DESC);
 
