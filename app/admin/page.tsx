@@ -21,6 +21,11 @@ import {
 } from 'lucide-react';
 
 import { PhotoScanEditor } from '@/components/admin/photo-scan-editor';
+import { AdminSectionNav } from '@/components/admin/admin-section-nav';
+import {
+  BatchNumberFields,
+  currentBatchNumber,
+} from '@/components/admin/batch-number-fields';
 import {
   createPerspectiveScan,
   isUsableCoverCorners,
@@ -39,6 +44,7 @@ const acceptedImages = ['image/jpeg', 'image/png', 'image/webp'];
 const maximumOriginalImageBytes = 20 * 1024 * 1024;
 
 type RecordFields = {
+  batchNumber: string;
   title: string;
   composers: string;
   performers: string;
@@ -51,7 +57,7 @@ type RecordFields = {
 
 type AnalyzedField = Exclude<
   keyof RecordFields,
-  'price' | 'condition' | 'conditionNotes'
+  'batchNumber' | 'price' | 'condition' | 'conditionNotes'
 >;
 type ConfidenceKey = AnalyzedField | 'category' | 'indexLetters';
 type ConfidenceScores = Record<ConfidenceKey, number>;
@@ -72,6 +78,7 @@ type AnalysisState =
   | { type: 'error'; message: string; remainingToday?: number };
 
 const emptyFields: RecordFields = {
+  batchNumber: '',
   title: '',
   composers: '',
   performers: '',
@@ -101,7 +108,10 @@ export default function AddRecordPage() {
   const [imageMode, setImageMode] = useState<ImageMode>('scan');
   const [imagePreview, setImagePreview] = useState('');
   const [originalImageName, setOriginalImageName] = useState('');
-  const [fields, setFields] = useState<RecordFields>(emptyFields);
+  const [fields, setFields] = useState<RecordFields>(() => ({
+    ...emptyFields,
+    batchNumber: currentBatchNumber(),
+  }));
   const [selectedLetters, setSelectedLetters] = useState<string[]>([]);
   const [category, setCategory] = useState<RecordCategory>('classical');
   const [confidence, setConfidence] = useState<ConfidenceScores | null>(null);
@@ -152,6 +162,7 @@ export default function AddRecordPage() {
         }
         setEditRecordId(record.id);
         setFields({
+          batchNumber: record.batchNumber || currentBatchNumber(),
           title: record.title,
           composers: record.composers,
           performers: record.performers,
@@ -346,7 +357,7 @@ export default function AddRecordPage() {
   function resetForm() {
     imageRequestRef.current += 1;
     formRef.current?.reset();
-    setFields(emptyFields);
+    setFields({ ...emptyFields, batchNumber: currentBatchNumber() });
     setCategory('classical');
     setSelectedLetters([]);
     setNewArrival(true);
@@ -425,7 +436,7 @@ export default function AddRecordPage() {
   function resetFormAfterSuccess(message: string) {
     imageRequestRef.current += 1;
     formRef.current?.reset();
-    setFields(emptyFields);
+    setFields({ ...emptyFields, batchNumber: currentBatchNumber() });
     setCategory('classical');
     setSelectedLetters([]);
     setNewArrival(true);
@@ -505,14 +516,7 @@ export default function AddRecordPage() {
         </a>
       </header>
 
-      <nav aria-label="唱片管理功能" className="admin-section-nav">
-        <div className="admin-shell">
-          <a aria-current="page" href="/admin">
-            新增唱片
-          </a>
-          <a href="/admin/records">管理唱片</a>
-        </div>
-      </nav>
+      <AdminSectionNav current="add" />
 
       <form
         className="record-form admin-shell"
@@ -716,6 +720,20 @@ export default function AddRecordPage() {
               </div>
             </div>
           ) : null}
+
+          <div
+            className={`form-field full-field ${needsReview('title') ? 'needs-review' : ''}`}
+          >
+            <label>
+              批次編號 Batch number info <em>管理員專用</em>
+            </label>
+            <input name="batchNumber" type="hidden" value={fields.batchNumber} />
+            <BatchNumberFields
+              onChange={(value) => updateField('batchNumber', value)}
+              value={fields.batchNumber}
+            />
+            <small>例如 JAN-B01 代表一月第 01 批；不會顯示在商店。</small>
+          </div>
 
           <div
             className={`form-field full-field ${needsReview('title') ? 'needs-review' : ''}`}

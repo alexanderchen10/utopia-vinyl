@@ -29,6 +29,11 @@ import {
 } from 'lucide-react';
 
 import { PhotoScanEditor } from '@/components/admin/photo-scan-editor';
+import { AdminSectionNav } from '@/components/admin/admin-section-nav';
+import {
+  BatchNumberFields,
+  currentBatchNumber,
+} from '@/components/admin/batch-number-fields';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -91,6 +96,7 @@ function recordFormData(record: ManagedRecord, replacementImage?: File | null) {
   data.set('price', record.price);
   data.set('condition', record.condition);
   data.set('conditionNotes', record.conditionNotes);
+  data.set('batchNumber', record.batchNumber ?? '');
   data.set('newArrival', String(record.newArrival));
   data.set('status', record.status);
   if (replacementImage) data.set('image', replacementImage);
@@ -213,7 +219,11 @@ export default function ManageRecordsPage() {
   function openEditor(record: ManagedRecord) {
     clearReplacement();
     setNotice(null);
-    setEditing({ ...record, indexLetters: [...record.indexLetters] });
+    setEditing({
+      ...record,
+      batchNumber: record.batchNumber || currentBatchNumber(),
+      indexLetters: [...record.indexLetters],
+    });
   }
 
   function closeEditor() {
@@ -369,6 +379,7 @@ export default function ManageRecordsPage() {
     const matchesCategory =
       categoryFilter === 'all' || record.category === categoryFilter;
     const searchable = [
+      record.batchNumber,
       record.title,
       record.composers,
       record.performers,
@@ -425,12 +436,7 @@ export default function ManageRecordsPage() {
         </a>
       </header>
 
-      <nav aria-label="唱片管理功能" className="admin-section-nav">
-        <div className="admin-shell">
-          <a href="/admin">新增唱片</a>
-          <a href="/admin">管理唱片</a>
-        </div>
-      </nav>
+      <AdminSectionNav current="records" />
 
       <section className="manage-shell admin-shell">
         <div className="manage-summary">
@@ -583,6 +589,9 @@ export default function ManageRecordsPage() {
                       <span>{categoryLabels[record.category]}</span>
                       {record.newArrival ? <span>新到唱片</span> : null}
                     </div>
+                    <small className="manage-batch">
+                      {record.batchNumber || '未設定批次'}
+                    </small>
                     <h2>{record.title}</h2>
                     <p>
                       {record.composers ||
@@ -703,6 +712,13 @@ export default function ManageRecordsPage() {
                 </section>
 
                 <section className="record-editor-fields">
+                  <div className="editor-field editor-full">
+                    <span>批次編號 Batch number info（管理員專用）</span>
+                    <BatchNumberFields
+                      onChange={(value) => updateEditing('batchNumber', value)}
+                      value={editing.batchNumber || currentBatchNumber()}
+                    />
+                  </div>
                   <label className="editor-field editor-full">
                     <span>唱片名稱</span>
                     <input

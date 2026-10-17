@@ -22,6 +22,8 @@ export type VinylRecord = {
   price: string;
   condition: string;
   conditionNotes: string;
+  /** Admin-only physical storage reference. Never returned by the public API. */
+  batchNumber?: string;
   status?: RecordStatus;
   createdAt?: string;
   available?: boolean;

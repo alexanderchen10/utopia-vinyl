@@ -17,6 +17,7 @@ type RecordRow = {
   price: string;
   condition: string;
   condition_notes: string;
+  batch_number: string | null;
   image_url: string;
   is_new_arrival: number;
   status: RecordStatus;
@@ -28,7 +29,10 @@ type RecordRow = {
   sold_at: string | null;
 };
 
-export function mapRecordRow(row: RecordRow): VinylRecord {
+export function mapRecordRow(
+  row: RecordRow,
+  includeAdminFields = false,
+): VinylRecord {
   let indexLetters: string[] = [];
 
   try {
@@ -56,6 +60,7 @@ export function mapRecordRow(row: RecordRow): VinylRecord {
     price: row.price,
     condition: row.condition,
     conditionNotes: row.condition_notes,
+    ...(includeAdminFields ? { batchNumber: row.batch_number ?? '' } : {}),
     status: row.status,
     createdAt: row.created_at,
     available: row.available === 1,
@@ -72,7 +77,7 @@ export async function listPublishedRecords(db: D1Database) {
       `SELECT id, title, composers, performers, category, index_letters,
         label, catalog_number, price, condition, condition_notes, image_url, is_new_arrival,
         status, created_at, available, shopify_sync_status, shopify_sync_error,
-        shopify_synced_at, sold_at
+        shopify_synced_at, sold_at, NULL AS batch_number
       FROM records
       WHERE status = ? AND available = 1
       ORDER BY created_at DESC`,
@@ -89,11 +94,11 @@ export async function listAdminRecords(db: D1Database) {
       `SELECT id, title, composers, performers, category, index_letters,
         label, catalog_number, price, condition, condition_notes, image_url, is_new_arrival,
         status, created_at, available, shopify_sync_status, shopify_sync_error,
-        shopify_synced_at, sold_at
+        shopify_synced_at, sold_at, batch_number
       FROM records
       ORDER BY updated_at DESC, created_at DESC`,
     )
     .all<RecordRow>();
 
-  return result.results.map(mapRecordRow);
+  return result.results.map((row) => mapRecordRow(row, true));
 }

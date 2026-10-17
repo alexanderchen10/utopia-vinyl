@@ -18,6 +18,7 @@ const allowedCategories = new Set<RecordCategory>([
 ]);
 const allowedStatuses = new Set<RecordStatus>(['draft', 'published']);
 const maximumStoredImageBytes = 800_000;
+const batchNumberPattern = /^(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)-B\d{2}$/;
 
 function readText(formData: FormData, name: string, maxLength: number) {
   const value = formData.get(name);
@@ -107,6 +108,7 @@ export async function POST(request: Request) {
   const title = readText(formData, 'title', 180);
   const category = readText(formData, 'category', 20) as RecordCategory;
   const status = readText(formData, 'status', 20) as RecordStatus;
+  const batchNumber = readText(formData, 'batchNumber', 7).toUpperCase();
 
   if (!(image instanceof File) || image.size === 0) {
     return Response.json(
@@ -128,6 +130,12 @@ export async function POST(request: Request) {
   }
   if (!title) {
     return Response.json({ message: '請填寫唱片名稱。' }, { status: 400 });
+  }
+  if (!batchNumberPattern.test(batchNumber)) {
+    return Response.json(
+      { message: '請填寫正確的批次編號，例如 JAN-B01。' },
+      { status: 400 },
+    );
   }
   if (!allowedCategories.has(category)) {
     return Response.json({ message: '請選擇唱片分類。' }, { status: 400 });
@@ -164,9 +172,9 @@ export async function POST(request: Request) {
       env.DB.prepare(
         `INSERT INTO records (
           id, title, composers, performers, category, index_letters, label,
-          catalog_number, price, condition, condition_notes, image_url, image_key,
+          catalog_number, price, condition, condition_notes, batch_number, image_url, image_key,
           image_content_type, is_new_arrival, status, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       ).bind(
         id,
         title,
@@ -179,6 +187,7 @@ export async function POST(request: Request) {
         price,
         condition,
         conditionNotes,
+        batchNumber,
         imageUrl,
         null,
         image.type,

@@ -19,6 +19,7 @@ const allowedCategories = new Set<RecordCategory>([
 ]);
 const allowedStatuses = new Set<RecordStatus>(['draft', 'published']);
 const maximumStoredImageBytes = 800_000;
+const batchNumberPattern = /^(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)-B\d{2}$/;
 
 function readText(formData: FormData, name: string, maxLength: number) {
   const value = formData.get(name);
@@ -77,6 +78,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   const title = readText(formData, 'title', 180);
   const category = readText(formData, 'category', 20) as RecordCategory;
   const status = readText(formData, 'status', 20) as RecordStatus;
+  const batchNumber = readText(formData, 'batchNumber', 7).toUpperCase();
   if (!title)
     return Response.json({ message: '請填寫唱片名稱。' }, { status: 400 });
   if (!allowedCategories.has(category)) {
@@ -84,6 +86,12 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
   if (!allowedStatuses.has(status)) {
     return Response.json({ message: '上架狀態不正確。' }, { status: 400 });
+  }
+  if (batchNumber && !batchNumberPattern.test(batchNumber)) {
+    return Response.json(
+      { message: '批次編號格式不正確，請使用 JAN-B01 這類格式。' },
+      { status: 400 },
+    );
   }
 
   let current: {
@@ -153,7 +161,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     env.DB.prepare(
       `UPDATE records SET
         title = ?, composers = ?, performers = ?, category = ?, index_letters = ?,
-        label = ?, catalog_number = ?, price = ?, condition = ?, condition_notes = ?, image_url = ?,
+        label = ?, catalog_number = ?, price = ?, condition = ?, condition_notes = ?, batch_number = ?, image_url = ?,
         image_content_type = ?, is_new_arrival = ?, status = ?, updated_at = ?
       WHERE id = ?`,
     ).bind(
@@ -167,6 +175,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       readText(formData, 'price', 50) || '價格待定',
       readText(formData, 'condition', 80) || 'VG',
       readText(formData, 'conditionNotes', 600),
+      batchNumber,
       imageUrl,
       hasReplacementImage ? 'image/jpeg' : current.image_content_type,
       formData.get('newArrival') === 'true' ? 1 : 0,

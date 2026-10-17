@@ -11,6 +11,7 @@ export const recordsSchema = `
     price TEXT NOT NULL DEFAULT '價格待定',
     condition TEXT NOT NULL DEFAULT 'VG',
     condition_notes TEXT NOT NULL DEFAULT '',
+    batch_number TEXT NOT NULL DEFAULT '',
     image_url TEXT NOT NULL,
     image_key TEXT,
     image_content_type TEXT,
