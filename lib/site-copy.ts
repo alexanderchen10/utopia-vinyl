@@ -42,15 +42,12 @@ export const copy = {
       aboutEyebrow: 'ABOUT UTOPIA VINYL',
       aboutTitle: '關於我們',
       aboutBody:
-        'Utopia Vinyl 的故事，從 2009 年在 MyAV 視聽商情網開始；2019 年與 eslite 誠品展開合作，並在 2026 年推出全新的數位唱片商店。',
+        'Utopia Vinyl 的故事，從 2009 年在 MyAV 視聽商情網開始，並在 2026 年推出全新的數位唱片商店。',
       aboutCta: '瀏覽唱片收藏',
       aboutImageAlt: 'Utopia Vinyl 2009 年在 MyAV 視聽商情網的早期標誌',
       aboutImageCaption: '2009・MyAV 視聽商情網',
-      aboutEsliteImageAlt: 'eslite 誠品標誌',
-      aboutEsliteImageCaption: '2019・eslite 誠品',
       aboutTimeline: [
         ['2009', 'Utopia Vinyl 於 2009 年在 MyAV 視聽商情網開始。'],
-        ['2019', 'Utopia Vinyl 與 eslite 誠品開始合作。'],
         ['2026', 'Utopia Vinyl 正式推出全新的數位唱片商店。'],
       ],
       browse: '瀏覽方式',
@@ -169,15 +166,12 @@ export const copy = {
       aboutEyebrow: 'ABOUT UTOPIA VINYL',
       aboutTitle: 'About us',
       aboutBody:
-        'Utopia Vinyl began in 2009 on MyAV 視聽商情網. In 2019, Utopia Vinyl began working with eslite 誠品. In 2026, it is launching its brand-new digital record store.',
+        'Utopia Vinyl began in 2009 on MyAV 視聽商情網. In 2026, it is launching its brand-new digital record store.',
       aboutCta: 'Browse the collection',
       aboutImageAlt: 'Utopia Vinyl early logo on MyAV 視聽商情網 in 2009',
       aboutImageCaption: '2009・MyAV 視聽商情網',
-      aboutEsliteImageAlt: 'eslite 誠品 logo',
-      aboutEsliteImageCaption: '2019・eslite 誠品',
       aboutTimeline: [
         ['2009', 'Utopia Vinyl started on MyAV 視聽商情網.'],
-        ['2019', 'Utopia Vinyl began working with eslite 誠品.'],
         ['2026', 'Utopia Vinyl launches its brand-new digital record store.'],
       ],
       browse: 'Browse',

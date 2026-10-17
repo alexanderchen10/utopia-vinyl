@@ -500,11 +500,6 @@ input:focus-visible {
   box-shadow: 0 8px 18px rgba(23, 23, 23, 0.08);
 }
 
-.about-history-image--eslite {
-  padding: 12px 20px;
-  background: var(--paper);
-}
-
 .about-event-copy small {
   display: block;
   margin-bottom: 10px;
