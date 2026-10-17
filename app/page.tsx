@@ -300,10 +300,10 @@ export default function Home() {
                 </article>
               ))}
             </div>
-            <Link className="landing-cta" href="/?collection=new-arrivals">
+            <a className="landing-cta" href="/?collection=new-arrivals">
               {text.home.aboutCta}
               <span aria-hidden="true">→</span>
-            </Link>
+            </a>
           </div>
         </section>
       ) : (
