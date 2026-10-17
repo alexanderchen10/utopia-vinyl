@@ -24,7 +24,7 @@ export default function UploadCalendarPage() {
         if (response.status === 401) { window.location.assign('/vinyl-login'); return null; }
         const result = (await response.json()) as { records?: VinylRecord[]; message?: string };
         if (!response.ok) throw new Error(result.message || '暫時無法讀取上架日曆。');
-        return result.records ?? [];
+        return (result.records ?? []).filter((record) => record.status === 'published');
       })
       .then((items) => { if (items) { setRecords(items); setMessage(''); } })
       .catch((error: unknown) => setMessage(error instanceof Error ? error.message : '暫時無法讀取上架日曆。'));
@@ -58,7 +58,7 @@ export default function UploadCalendarPage() {
         <div className="calendar-toolbar"><button aria-label="上一個月" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))} type="button"><ChevronLeft /></button><h2>{month.getFullYear()} 年 {month.getMonth() + 1} 月</h2><button aria-label="下一個月" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))} type="button"><ChevronRight /></button></div>
         {message ? <p className="admin-docs-message">{message}</p> : (
           <div className="upload-calendar"><div className="calendar-weekdays">{weekdayLabels.map((day) => <span key={day}>週{day}</span>)}</div><div className="calendar-grid">{cells.map((cell, index) => cell ? (
-            <button className={cell.records.length ? 'has-records' : ''} disabled={!cell.records.length} key={cell.key} onClick={() => setSelectedDate(cell.key)} type="button"><span>{cell.day}</span>{cell.records.length ? <><strong>{cell.records.length} 張</strong><small>{cell.records.slice(0, 2).map((record) => record.batchNumber || record.title).join('、')}</small></> : null}</button>
+            <button className={cell.records.length ? 'has-records' : ''} disabled={!cell.records.length} key={cell.key} onClick={() => setSelectedDate(cell.key)} type="button"><span>{cell.day}</span>{cell.records.length ? <strong>{cell.records.length} 張</strong> : null}</button>
           ) : <span className="calendar-empty-cell" key={`empty-${index}`} />)}</div></div>
         )}
       </section>
