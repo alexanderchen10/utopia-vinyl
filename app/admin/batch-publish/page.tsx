@@ -47,8 +47,8 @@ export default function BatchPublishPage() {
   }, []);
 
   const batches = useMemo(() => Array.from(new Set(records.map((record) => record.batchNumber).filter((value): value is string => Boolean(value)))).sort(), [records]);
-  const drafts = useMemo(() => records.filter((record) => record.batchNumber === batch && record.status === 'draft'), [batch, records]);
-  const alreadyPublished = useMemo(() => records.filter((record) => record.batchNumber === batch && record.status === 'published').length, [batch, records]);
+  const drafts = useMemo(() => batch ? records.filter((record) => record.batchNumber === batch && record.status === 'draft') : [], [batch, records]);
+  const alreadyPublished = useMemo(() => batch ? records.filter((record) => record.batchNumber === batch && record.status === 'published').length : 0, [batch, records]);
 
   function chooseBatch(value: string) {
     setBatch(value);
