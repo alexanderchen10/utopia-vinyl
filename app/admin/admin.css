@@ -1923,10 +1923,14 @@ main.admin-page {
 .calendar-grid > button > span { display:block; font-weight:800; }
 .calendar-grid > button strong { display:inline-block; margin-top:12px; padding:4px 8px; border-radius:999px; background:#176fd1; color:#fff; font-size:.75rem; }
 .batch-publish-controls { display:flex; justify-content:space-between; align-items:end; gap:24px; margin-bottom:24px; padding:22px; border-radius:16px; background:#fff; border:1px solid #d3dfeb; }
+.batch-publish-controls > div { display:grid; gap:10px; min-width:min(100%, 520px); }
+.batch-publish-control-label { color:#52657b; font-weight:800; }
 .batch-publish-controls label { display:grid; gap:8px; min-width:280px; color:#52657b; font-weight:800; }
 .batch-publish-controls select { min-height:52px; border:1px solid #bdccdc; border-radius:9px; background:#fff; padding:0 14px; font:inherit; }
 .batch-publish-controls p { margin:0; color:#5f7188; }
 .batch-publish-controls p strong { color:#115cb1; font-size:1.5rem; }
+.assign-october-batches { width:100%; margin:0 0 24px; min-height:52px; border:1px solid #1768bd; border-radius:10px; background:#1768bd; color:#fff; font:inherit; font-weight:800; cursor:pointer; }
+.assign-october-batches:disabled { cursor:wait; opacity:.65; }
 .batch-publish-message { display:block; margin-bottom:20px; padding:14px 18px; border-radius:10px; background:#e5f0ff; color:#174f91; }
 .batch-publish-list { display:grid; gap:12px; padding-bottom:112px; }
 .batch-publish-list > label { display:grid; grid-template-columns:34px 92px 1fr; align-items:center; gap:16px; padding:14px; border:2px solid #d7e1eb; border-radius:14px; background:#fff; cursor:pointer; }

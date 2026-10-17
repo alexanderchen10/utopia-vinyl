@@ -125,6 +125,25 @@ export default function ManageRecordsPage() {
   const [isPreparingImage, setIsPreparingImage] = useState(false);
   const [scanEditorOpen, setScanEditorOpen] = useState(false);
 
+  async function assignOctoberBatches() {
+    setBusyId('assign-october-batches');
+    setNotice(null);
+    try {
+      const response = await fetch('/api/admin/records/assign-october-batches', {
+        method: 'POST',
+        credentials: 'same-origin',
+      });
+      const result = (await response.json()) as { message?: string };
+      if (!response.ok) throw new Error(result.message || '批次整理失敗。');
+      setNotice({ type: 'success', message: result.message || '批次整理完成。' });
+      await loadRecords();
+    } catch (error) {
+      setNotice({ type: 'error', message: error instanceof Error ? error.message : '批次整理失敗。' });
+    } finally {
+      setBusyId('');
+    }
+  }
+
   useEffect(
     () => () => {
       if (replacementUrlRef.current)
@@ -518,6 +537,17 @@ export default function ManageRecordsPage() {
             )}
             <span>{notice.message}</span>
           </output>
+        ) : null}
+
+        {loadState === 'ready' && records.length === 93 ? (
+          <button
+            className="assign-october-batches"
+            disabled={busyId === 'assign-october-batches'}
+            onClick={() => void assignOctoberBatches()}
+            type="button"
+          >
+            {busyId === 'assign-october-batches' ? '正在整理…' : '將 93 張唱片整理為 OCT-B01 至 OCT-B04'}
+          </button>
         ) : null}
 
         {loadState === 'loading' ? (

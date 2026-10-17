@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { ArrowLeft, Check, LoaderCircle, Upload } from 'lucide-react';
 
 import { AdminSectionNav } from '@/components/admin/admin-section-nav';
+import { BatchNumberFields, currentBatchNumber } from '@/components/admin/batch-number-fields';
 import { categoryLabels, type RecordStatus, type VinylRecord } from '@/lib/catalog';
 
 type ManagedRecord = VinylRecord & { status: RecordStatus };
@@ -29,7 +30,7 @@ function publicationData(record: ManagedRecord) {
 
 export default function BatchPublishPage() {
   const [records, setRecords] = useState<ManagedRecord[]>([]);
-  const [batch, setBatch] = useState('');
+  const [batch, setBatch] = useState(currentBatchNumber);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [message, setMessage] = useState('正在讀取批次資料…');
   const [busy, setBusy] = useState(false);
@@ -42,11 +43,18 @@ export default function BatchPublishPage() {
         if (!response.ok) throw new Error(result.message || '暫時無法讀取批次資料。');
         return (result.records ?? []).map((record) => ({ ...record, status: record.status ?? 'published' }));
       })
-      .then((items) => { if (items) { setRecords(items); setMessage(''); } })
+      .then((items) => {
+        if (items) {
+          const initialBatch = currentBatchNumber();
+          setRecords(items);
+          setBatch(initialBatch);
+          setSelected(new Set(items.filter((record) => record.batchNumber === initialBatch && record.status === 'draft').map((record) => record.id)));
+          setMessage('');
+        }
+      })
       .catch((error: unknown) => setMessage(error instanceof Error ? error.message : '暫時無法讀取批次資料。'));
   }, []);
 
-  const batches = useMemo(() => Array.from(new Set(records.map((record) => record.batchNumber).filter((value): value is string => Boolean(value)))).sort(), [records]);
   const drafts = useMemo(() => batch ? records.filter((record) => record.batchNumber === batch && record.status === 'draft') : [], [batch, records]);
   const alreadyPublished = useMemo(() => batch ? records.filter((record) => record.batchNumber === batch && record.status === 'published').length : 0, [batch, records]);
 
@@ -78,7 +86,7 @@ export default function BatchPublishPage() {
       <header className="admin-docs-header admin-shell"><div><p>唱片管理</p><h1>批次上架</h1><span>先選批次、逐張確認，再一次上架已勾選的唱片。</span></div><a className="back-to-shop" href="/"><ArrowLeft aria-hidden="true" /> 回到商店</a></header>
       <AdminSectionNav current="publish" />
       <section className="admin-docs-shell admin-shell">
-        <div className="batch-publish-controls"><label><span>選擇批次</span><select onChange={(event) => chooseBatch(event.target.value)} value={batch}><option value="">請選擇批次</option>{batches.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>{batch ? <p><strong>{drafts.length}</strong> 張尚未上架・{alreadyPublished} 張已在商店</p> : null}</div>
+        <div className="batch-publish-controls"><div><span className="batch-publish-control-label">選擇批次</span><BatchNumberFields onChange={chooseBatch} value={batch} /></div><p><strong>{drafts.length}</strong> 張尚未上架・{alreadyPublished} 張已在商店</p></div>
         {message ? <output className="batch-publish-message">{message}</output> : null}
         {!batch && !message ? <div className="admin-docs-message">請先選擇要檢查的批次。</div> : null}
         {batch && drafts.length === 0 ? <div className="admin-docs-message">這個批次沒有等待上架的唱片。</div> : null}
