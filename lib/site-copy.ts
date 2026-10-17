@@ -25,7 +25,7 @@ export const copy = {
       classical: '依作曲家英文字母瀏覽',
       jazz: '依演奏家或樂團英文字母瀏覽',
     },
-    announcement: '滿 NT$2,000 享免運・黑膠唱片專門店',
+    announcement: '滿 NT$2,500 享免運・黑膠唱片專門店',
     home: {
       ariaHome: 'Utopia Vinyl 首頁',
       logoAlt: 'Utopia Vinyl 黑膠理想國',
@@ -149,7 +149,7 @@ export const copy = {
       classical: 'Browse composers from A to Z',
       jazz: 'Browse performers or groups from A to Z',
     },
-    announcement: 'Free shipping over NT$2,000・Vinyl record shop',
+    announcement: 'Free shipping over NT$2,500・Vinyl record shop',
     home: {
       ariaHome: 'Utopia Vinyl home',
       logoAlt: 'Utopia Vinyl',
