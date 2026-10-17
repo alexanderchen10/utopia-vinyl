@@ -35,7 +35,7 @@ export const copy = {
       collectionEyebrow: '精選收藏',
       count: (count: number) => `${count} 張唱片`,
       landingMessage:
-        '歡迎來到 Utopia Vinyl。請盡情瀏覽，享受尋找唱片的樂趣。我們擁有豐富的黑膠唱片收藏，自 2009 年起營業至今。',
+        '歡迎來到 Utopia Vinyl。請盡情瀏覽，享受尋找唱片的樂趣。我們擁有豐富的黑膠唱片收藏，自 2009 年起營業至今。從愛樂友出發，分享多年來的聆賞收藏，讓類比黑膠唱片成為你、我生活的一部分！讓黑膠唱片持續轉動著，讓音樂持續充滿歡樂！',
       landingEyebrow: 'UTOPIA VINYL・自 2009 年起',
       landingTitle: '黑膠理想國',
       landingCta: '了解 Utopia Vinyl',
@@ -159,7 +159,7 @@ export const copy = {
       collectionEyebrow: 'Featured collection',
       count: (count: number) => `${count} records`,
       landingMessage:
-        'Welcome to Utopia Vinyl. Enjoy your experience browsing around. We have tons of vinyl records and have been operating since 2009.',
+        'Welcome to Utopia Vinyl. Enjoy browsing and discovering records from our extensive collection, built since 2009. Born from a love of music, we share years of listening and collecting so analog vinyl can become part of everyday life—for you and for us. Keep the records spinning, and let music keep filling life with joy!',
       landingEyebrow: 'UTOPIA VINYL・SINCE 2009',
       landingTitle: 'A home for records',
       landingCta: 'Learn about Utopia Vinyl',
