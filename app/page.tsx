@@ -29,6 +29,13 @@ import { copy } from '@/lib/site-copy';
 
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
+function isCurrentMonth(createdAt: string | undefined, now: Date | null) {
+  if (!now) return true;
+  if (!createdAt) return false;
+  const created = new Date(createdAt);
+  return created.getFullYear() === now.getFullYear() && created.getMonth() === now.getMonth();
+}
+
 const navigation = [
   { id: 'home', key: 'home', accent: true },
   { id: 'new-arrivals', key: 'newArrivals' },
@@ -55,6 +62,7 @@ export default function Home() {
   const [selected, setSelected] = useState('home');
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [now, setNow] = useState<Date | null>(null);
   const selectedNav =
     navigation.find((item) => item.id === selected) ?? navigation[0];
   const selectedNavLabel = text.nav[selectedNav.key as keyof typeof text.nav];
@@ -68,7 +76,7 @@ export default function Home() {
   const normalizedSearch = searchQuery.trim().toLocaleLowerCase();
   const selectedCategoryRecords = records.filter((record) =>
     selected === 'home' || selected === 'new-arrivals'
-      ? record.newArrival
+      ? record.newArrival && isCurrentMonth(record.createdAt, now)
       : selected === 'special-prices'
         ? isSpecialPrice(record)
         : record.category === selected,
@@ -79,7 +87,7 @@ export default function Home() {
   const filteredRecords = records.filter((record) => {
     const matchesCollection =
       selected === 'home' || selected === 'new-arrivals'
-        ? record.newArrival
+        ? record.newArrival && isCurrentMonth(record.createdAt, now)
         : selected === 'special-prices'
           ? isSpecialPrice(record)
           : record.category === selected;
@@ -132,6 +140,23 @@ export default function Home() {
       window.cancelAnimationFrame(navigationFrame);
     };
   }, []);
+
+  useEffect(() => {
+    const update = () => setNow(new Date());
+    update();
+    const timer = window.setInterval(update, 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const nextMonth = now
+    ? new Date(now.getFullYear(), now.getMonth() + 1, 1)
+    : null;
+  const remaining = nextMonth && now ? Math.max(0, nextMonth.getTime() - now.getTime()) : 0;
+  const countdown = {
+    days: Math.floor(remaining / 86_400_000),
+    hours: Math.floor((remaining / 3_600_000) % 24),
+    minutes: Math.floor((remaining / 60_000) % 60),
+  };
 
   function selectCollection(id: string) {
     setSelected(id);
@@ -323,6 +348,16 @@ export default function Home() {
                 {text.home.count(filteredRecords.length)}
               </span>
             </div>
+            {selected === 'home' || selected === 'new-arrivals' ? (
+              <div className="monthly-countdown" aria-label="距離下個月新到唱片更新時間">
+                <span>每月更新・本月新到倒數</span>
+                <div><strong>{countdown.days}</strong><small>天</small></div>
+                <i aria-hidden="true">:</i>
+                <div><strong>{String(countdown.hours).padStart(2, '0')}</strong><small>時</small></div>
+                <i aria-hidden="true">:</i>
+                <div><strong>{String(countdown.minutes).padStart(2, '0')}</strong><small>分</small></div>
+              </div>
+            ) : null}
           </section>
 
           <div className="catalog shell">
@@ -349,7 +384,7 @@ export default function Home() {
                           : text.nav[item.key as keyof typeof text.nav]}{' '}
                       <span>
                         {item.id === 'new-arrivals'
-                          ? records.filter((record) => record.newArrival).length
+                          ? records.filter((record) => record.newArrival && isCurrentMonth(record.createdAt, now)).length
                           : item.id === 'special-prices'
                             ? records.filter(isSpecialPrice).length
                             : records.filter(
