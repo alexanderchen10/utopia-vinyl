@@ -735,6 +735,12 @@ export default function AddRecordPage() {
             <small>例如 JAN-B01 代表一月第 01 批；不會顯示在商店。</small>
           </div>
 
+          <div className="unique-inventory-policy full-field">
+            <strong>單件黑膠庫存設定</strong>
+            <span>庫存數量 1</span><span>追蹤庫存：啟用</span><span>缺貨後繼續銷售：停用</span><span>購物車上限：1</span>
+            <small>網站端已套用；Shopify 連線後會以相同規則建立商品。</small>
+          </div>
+
           <div
             className={`form-field full-field ${needsReview('title') ? 'needs-review' : ''}`}
           >

@@ -1870,6 +1870,7 @@ main.admin-page {
   justify-content: center;
   min-height: 52px;
 }
+.admin-section-nav { overflow-x:auto; }
 .admin-section-nav a {
   min-width: 170px;
   display: grid;
@@ -1943,6 +1944,45 @@ main.admin-page {
 .batch-shopify-workflow li.is-pending { border-style:dashed; background:#faf8f2; }
 .batch-shopify-workflow li.is-pending > span { color:#9a7515; }
 .batch-publish-message { display:block; margin-bottom:20px; padding:14px 18px; border-radius:10px; background:#e5f0ff; color:#174f91; }
+.unique-inventory-policy { display:flex; flex-wrap:wrap; gap:8px; padding:16px; border:1px solid #c9d8e8; border-radius:12px; background:#f3f8ff; }
+.unique-inventory-policy strong,.unique-inventory-policy small { width:100%; }
+.unique-inventory-policy span { padding:7px 9px; border-radius:999px; background:#fff; color:#33516f; font-size:.76rem; font-weight:800; }
+.unique-inventory-policy small { color:#697b90; }
+.shopify-connection-banner { display:flex; gap:14px; margin-bottom:20px; padding:18px; border:1px solid #ead6a8; border-radius:14px; background:#fff9e9; color:#775b17; }
+.shopify-connection-banner svg { flex:0 0 auto; }
+.shopify-connection-banner p { margin:4px 0 0; }
+.sync-summary { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+.sync-summary article { display:grid; grid-template-columns:auto 1fr; gap:4px 12px; padding:20px; border:1px solid #d0ddeb; border-radius:14px; background:#fff; }
+.sync-summary svg { grid-row:1/3; align-self:center; color:#1768bd; }
+.sync-summary strong { font-size:1.8rem; }
+.sync-summary span { color:#687a90; }
+.taiwan-shopify-settings { display:grid; grid-template-columns:260px 1fr; gap:28px; margin-bottom:24px; padding:24px; border:1px solid #d0ddeb; border-radius:16px; background:#fff; }
+.taiwan-shopify-settings h2 { margin:5px 0 0; }
+.taiwan-shopify-settings > div > span { color:#1768bd; font-size:.78rem; font-weight:800; letter-spacing:.1em; }
+.taiwan-shopify-settings ul { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:0; padding:0; list-style:none; }
+.taiwan-shopify-settings li { display:flex; gap:10px; padding:12px; border-radius:10px; background:#f7f9fb; color:#7b6a3a; }
+.taiwan-shopify-settings li.is-ready { color:#276b44; }
+.taiwan-shopify-settings li svg { flex:0 0 auto; width:18px; }
+.taiwan-shopify-settings li span,.taiwan-shopify-settings li small { display:block; }
+.taiwan-shopify-settings li small { margin-top:3px; color:#6c7c8f; }
+.sync-record-list { display:grid; gap:8px; }
+.sync-record-list article { display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:14px; padding:14px 16px; border:1px solid #d4e0eb; border-radius:12px; background:#fff; }
+.sync-record-list article div { display:grid; gap:3px; min-width:0; }
+.sync-record-list article small,.sync-record-list article span { color:#6b7c91; }
+.sync-record-list article strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.sync-record-list mark { padding:7px 10px; border-radius:999px; background:#eef2f6; color:#53657a; font-size:.78rem; font-weight:800; }
+.sync-record-list .sync-synced { background:#e4f5ea; color:#267044; }
+.sync-record-list .sync-failed { background:#fde9e7; color:#a4372d; }
+.sync-record-list .sync-sold { background:#e8ebef; color:#424c59; }
+.sync-record-list button { display:flex; align-items:center; gap:6px; border:0; background:transparent; color:#8a969f; }
+.shopify-launch-roadmap { margin-bottom:24px; padding:24px; border:1px solid #d0ddeb; border-radius:16px; background:#10213a; color:#fff; }
+.shopify-launch-roadmap > div > span { color:#7cb8ff; font-size:.78rem; font-weight:800; letter-spacing:.1em; }
+.shopify-launch-roadmap h2 { margin:5px 0 22px; }
+.shopify-launch-roadmap ol { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:0; padding:0; list-style:none; }
+.shopify-launch-roadmap li { position:relative; min-height:90px; padding:14px; border:1px solid rgba(255,255,255,.18); border-radius:10px; background:rgba(255,255,255,.05); }
+.shopify-launch-roadmap li.is-next { border-color:#69aefc; background:rgba(52,139,238,.18); }
+.shopify-launch-roadmap li span { display:block; margin-bottom:10px; color:#7cb8ff; font-size:.72rem; font-weight:900; letter-spacing:.1em; }
+.shopify-launch-roadmap li strong { line-height:1.4; }
 .batch-publish-list { display:grid; gap:12px; padding-bottom:112px; }
 .batch-publish-list > label { display:grid; grid-template-columns:34px 92px 1fr; align-items:center; gap:16px; padding:14px; border:2px solid #d7e1eb; border-radius:14px; background:#fff; cursor:pointer; }
 .batch-publish-list > label.is-selected { border-color:#287bd7; background:#f2f7ff; }
@@ -1981,6 +2021,10 @@ main.admin-page {
   .batch-shopify-workflow li { min-height:0; }
   .batch-shopify-workflow li:not(:last-child)::after { right:auto; left:50%; top:auto; bottom:-30px; translate:-50% 0; rotate:0deg; }
   .batch-workflow-heading { align-items:flex-start; flex-direction:column; gap:12px; }
+  .sync-summary { grid-template-columns:repeat(2,1fr); }
+  .taiwan-shopify-settings { grid-template-columns:1fr; }
+  .taiwan-shopify-settings ul { grid-template-columns:1fr; }
+  .shopify-launch-roadmap ol { grid-template-columns:1fr; }
   .batch-publish-list > label { grid-template-columns:30px 72px 1fr; gap:10px; }
   .batch-publish-cover { width:72px; height:72px; }
   .batch-publish-footer { bottom:10px; }

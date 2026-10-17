@@ -228,6 +228,7 @@ export default function Home() {
           </label>
 
           <div className="header-actions">
+            <span className="store-locale-status">台灣商店 · TWD · 繁體中文</span>
             <LanguageSwitcher language={language} onChange={setLanguage} />
             <Button
               aria-label={language === 'en' ? 'Favorites' : '我的收藏'}
@@ -503,7 +504,7 @@ export default function Home() {
                           </dl>
                           <div className="record-status">
                             <strong>{formatStorePrice(record.price)}</strong>
-                            <span>{record.condition}</span>
+                            <span>{record.condition} · 庫存 1</span>
                           </div>
                         </div>
                       </Link>
