@@ -31,6 +31,7 @@ import {
   categoryLabels,
   type RecordCategory,
   type RecordStatus,
+  type VinylRecord,
 } from '@/lib/catalog';
 
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -43,12 +44,19 @@ type RecordFields = {
   performers: string;
   label: string;
   catalogNumber: string;
+  price: string;
+  condition: string;
+  conditionNotes: string;
 };
 
-type ConfidenceKey = keyof RecordFields | 'category' | 'indexLetters';
+type AnalyzedField = Exclude<
+  keyof RecordFields,
+  'price' | 'condition' | 'conditionNotes'
+>;
+type ConfidenceKey = AnalyzedField | 'category' | 'indexLetters';
 type ConfidenceScores = Record<ConfidenceKey, number>;
 
-type AnalysisRecord = RecordFields & {
+type AnalysisRecord = Pick<RecordFields, AnalyzedField> & {
   category: RecordCategory | null;
   indexLetters: string[];
   fieldConfidence: ConfidenceScores;
@@ -69,6 +77,9 @@ const emptyFields: RecordFields = {
   performers: '',
   label: '',
   catalogNumber: '',
+  price: '',
+  condition: '',
+  conditionNotes: '',
 };
 
 type SubmitState =
@@ -110,6 +121,64 @@ export default function AddRecordPage() {
   const [fileInputKey, setFileInputKey] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [editRecordId, setEditRecordId] = useState('');
+  const [newArrival, setNewArrival] = useState(true);
+
+  useEffect(() => {
+    const recordId = new URLSearchParams(window.location.search).get('edit');
+    if (!recordId) return;
+
+    let cancelled = false;
+    void fetch('/api/admin/records', { credentials: 'same-origin' })
+      .then(async (response) => {
+        const result = (await response.json()) as {
+          records?: VinylRecord[];
+          message?: string;
+        };
+        if (response.status === 401) {
+          window.location.assign('/vinyl-login');
+          return null;
+        }
+        if (!response.ok || !Array.isArray(result.records)) {
+          throw new Error(result.message || '暫時無法讀取草稿。');
+        }
+        return result.records.find((record) => record.id === recordId) ?? null;
+      })
+      .then((record) => {
+        if (cancelled || !record) {
+          if (!cancelled)
+            setSubmitState({ type: 'error', message: '找不到這張草稿。' });
+          return;
+        }
+        setEditRecordId(record.id);
+        setFields({
+          title: record.title,
+          composers: record.composers,
+          performers: record.performers,
+          label: record.label,
+          catalogNumber: record.catalogNumber,
+          price: record.price,
+          condition: record.condition,
+          conditionNotes: record.conditionNotes,
+        });
+        setCategory(record.category);
+        setSelectedLetters(record.indexLetters);
+        setNewArrival(record.newArrival);
+        setImagePreview(record.image);
+        setSubmitState({ type: 'success', message: '草稿已載入，可以繼續編輯。' });
+      })
+      .catch((error: unknown) => {
+        if (!cancelled)
+          setSubmitState({
+            type: 'error',
+            message: error instanceof Error ? error.message : '暫時無法讀取草稿。',
+          });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(
     () => () => {
@@ -164,13 +233,14 @@ export default function AddRecordPage() {
       if (imageRequestRef.current !== requestId) return;
 
       const record = result.record;
-      setFields({
+      setFields((current) => ({
+        ...current,
         title: record.title,
         composers: record.composers,
         performers: record.performers,
         label: record.label,
         catalogNumber: record.catalogNumber,
-      });
+      }));
       if (record.category) setCategory(record.category);
       setSelectedLetters(
         record.category === 'classical' || record.category === 'jazz'
@@ -279,6 +349,7 @@ export default function AddRecordPage() {
     setFields(emptyFields);
     setCategory('classical');
     setSelectedLetters([]);
+    setNewArrival(true);
     setImageFile(null);
     setOriginalImageFile(null);
     setScanImageFile(null);
@@ -299,7 +370,7 @@ export default function AddRecordPage() {
   }
 
   async function saveRecord(form: HTMLFormElement, status: RecordStatus) {
-    if (!imageFile) {
+    if (!imageFile && !editRecordId) {
       setSubmitState({ type: 'error', message: '請先加入唱片封面照片。' });
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -308,11 +379,11 @@ export default function AddRecordPage() {
     if (!form.reportValidity()) return;
 
     const data = new FormData(form);
-    data.set('image', imageFile);
+    if (imageFile) data.set('image', imageFile);
     data.set('status', status);
     data.set('category', category);
     data.set('indexLetters', selectedLetters.join(','));
-    data.set('newArrival', String(data.get('newArrival') === 'on'));
+    data.set('newArrival', String(newArrival));
 
     setSubmitState({
       type: 'saving',
@@ -320,11 +391,16 @@ export default function AddRecordPage() {
     });
 
     try {
-      const response = await fetch('/api/admin/records', {
-        method: 'POST',
+      const response = await fetch(
+        editRecordId
+          ? `/api/admin/records/${encodeURIComponent(editRecordId)}`
+          : '/api/admin/records',
+        {
+        method: editRecordId ? 'PATCH' : 'POST',
         credentials: 'same-origin',
         body: data,
-      });
+        },
+      );
       const result = (await response.json()) as { message?: string };
       if (response.status === 401) {
         window.location.assign('/vinyl-login');
@@ -336,7 +412,7 @@ export default function AddRecordPage() {
         type: 'success',
         message: result.message ?? '唱片已儲存。',
       });
-      if (status === 'published')
+      if (!editRecordId && status === 'published')
         resetFormAfterSuccess(result.message ?? '唱片已成功上架！');
     } catch (error) {
       setSubmitState({
@@ -352,6 +428,7 @@ export default function AddRecordPage() {
     setFields(emptyFields);
     setCategory('classical');
     setSelectedLetters([]);
+    setNewArrival(true);
     setImageFile(null);
     setOriginalImageFile(null);
     setScanImageFile(null);
@@ -416,8 +493,12 @@ export default function AddRecordPage() {
         </a>
         <div className="admin-heading">
           <p>唱片管理</p>
-          <h1>新增唱片</h1>
-          <span>填完資料後，就可以直接放進商店。</span>
+          <h1>{editRecordId ? '編輯草稿' : '新增唱片'}</h1>
+          <span>
+            {editRecordId
+              ? '使用與新增唱片相同的完整流程，完成後可以儲存或直接上架。'
+              : '填完資料後，就可以直接放進商店。'}
+          </span>
         </div>
         <a className="back-to-shop" href="/">
           <ArrowLeft aria-hidden="true" /> 回到商店
@@ -760,7 +841,9 @@ export default function AddRecordPage() {
                 id="price"
                 maxLength={50}
                 name="price"
+                onChange={(event) => updateField('price', event.target.value)}
                 placeholder="例如：NT$ 1,200"
+                value={fields.price}
               />
             </div>
             <div className="form-field">
@@ -769,9 +852,27 @@ export default function AddRecordPage() {
                 id="condition"
                 maxLength={40}
                 name="condition"
+                onChange={(event) =>
+                  updateField('condition', event.target.value)
+                }
                 placeholder="例如：NM、VG+ 或封面良好"
+                value={fields.condition}
               />
             </div>
+          </div>
+
+          <div className="form-field full-field">
+            <label htmlFor="conditionNotes">品相備註</label>
+            <textarea
+              id="conditionNotes"
+              maxLength={600}
+              name="conditionNotes"
+              onChange={(event) =>
+                updateField('conditionNotes', event.target.value)
+              }
+              placeholder="例如：封面有輕微角損，唱片播放正常"
+              value={fields.conditionNotes}
+            />
           </div>
 
           {needsIndex ? (
@@ -799,7 +900,12 @@ export default function AddRecordPage() {
           ) : null}
 
           <label aria-label="同時放進新到唱片" className="new-arrival-check">
-            <input defaultChecked name="newArrival" type="checkbox" />
+            <input
+              checked={newArrival}
+              name="newArrival"
+              onChange={(event) => setNewArrival(event.target.checked)}
+              type="checkbox"
+            />
             <span>
               <strong>同時放進「新到唱片」</strong>
               <small>建議保持勾選，客人會先在首頁看到。</small>

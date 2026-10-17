@@ -600,7 +600,15 @@ export default function ManageRecordsPage() {
                   <div className="manage-record-actions">
                     <button
                       disabled={isBusy}
-                      onClick={() => openEditor(record)}
+                      onClick={() => {
+                        if (record.status === 'draft') {
+                          window.location.assign(
+                            `/admin?edit=${encodeURIComponent(record.id)}`,
+                          );
+                        } else {
+                          openEditor(record);
+                        }
+                      }}
                       type="button"
                     >
                       <Pencil aria-hidden="true" /> 編輯
