@@ -600,15 +600,7 @@ export default function ManageRecordsPage() {
                   <div className="manage-record-actions">
                     <button
                       disabled={isBusy}
-                      onClick={() => {
-                        if (record.status === 'draft') {
-                          window.location.assign(
-                            `/admin?edit=${encodeURIComponent(record.id)}`,
-                          );
-                        } else {
-                          openEditor(record);
-                        }
-                      }}
+                      onClick={() => openEditor(record)}
                       type="button"
                     >
                       <Pencil aria-hidden="true" /> 編輯
@@ -817,34 +809,25 @@ export default function ManageRecordsPage() {
                   </label>
                   <label className="editor-field">
                     <span>品相等級</span>
-                    <select
+                    <input
+                      maxLength={80}
                       onChange={(event) =>
                         updateEditing('condition', event.target.value)
                       }
-                      value={
-                        [
-                          'SS',
-                          'M',
-                          'NM',
-                          'VG ++',
-                          'VG +',
-                          'VG',
-                          'G',
-                          'F',
-                        ].includes(editing.condition)
-                          ? editing.condition
-                          : 'VG'
+                      placeholder="例如：NM、VG+ 或封面良好"
+                      value={editing.condition}
+                    />
+                  </label>
+                  <label className="editor-field editor-full">
+                    <span>品相備註</span>
+                    <textarea
+                      maxLength={600}
+                      onChange={(event) =>
+                        updateEditing('conditionNotes', event.target.value)
                       }
-                    >
-                      <option>SS</option>
-                      <option>M</option>
-                      <option>NM</option>
-                      <option>VG ++</option>
-                      <option>VG +</option>
-                      <option>VG</option>
-                      <option>G</option>
-                      <option>F</option>
-                    </select>
+                      placeholder="例如：封面有輕微角損，唱片播放正常"
+                      value={editing.conditionNotes}
+                    />
                   </label>
 
                   {editing.category === 'classical' ||
