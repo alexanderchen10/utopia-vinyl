@@ -49,6 +49,14 @@ export function isSpecialPrice(record: Pick<VinylRecord, 'price'>) {
   return /特價|優惠|折扣|sale|clearance/i.test(String(record.price ?? ''));
 }
 
+export function formatStorePrice(price: string) {
+  const value = String(price ?? '').trim();
+  if (!value || !/\d/.test(value) || /\b(?:NTD|TWD)\b|NT\$/i.test(value)) {
+    return value;
+  }
+  return `${value} NTD`;
+}
+
 export const initialRecords: VinylRecord[] = [
   {
     id: 'janos-starker-most-beautiful-melodies',

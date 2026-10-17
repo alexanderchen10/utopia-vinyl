@@ -753,10 +753,22 @@ input:focus-visible {
 
 .record-card {
   min-width: 0;
+  overflow: hidden;
+  border: 1px solid #d7d9dc;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 7px 18px rgba(43, 49, 58, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.record-card:hover {
+  border-color: #c4c7cb;
+  box-shadow: 0 12px 28px rgba(43, 49, 58, 0.08);
 }
 
 .record-card-link {
   display: block;
+  height: 100%;
 }
 
 .record-cover {
@@ -791,7 +803,7 @@ input:focus-visible {
 }
 
 .record-details {
-  padding-top: 18px;
+  padding: 18px 18px 20px;
 }
 
 .record-composer {

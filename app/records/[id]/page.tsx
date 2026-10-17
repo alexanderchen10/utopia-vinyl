@@ -19,7 +19,7 @@ import {
   LanguageSwitcher,
   useSiteLanguage,
 } from '@/components/site/language-switcher';
-import { initialRecords, type VinylRecord } from '@/lib/catalog';
+import { formatStorePrice, initialRecords, type VinylRecord } from '@/lib/catalog';
 import { categoryNames, copy } from '@/lib/site-copy';
 
 const navigation = [
@@ -233,7 +233,7 @@ export default function RecordPage() {
               ) : null}
 
               <div className="product-price-row">
-                <strong>{record.price}</strong>
+                <strong>{formatStorePrice(record.price)}</strong>
                 <span>{text.detail.shipping}</span>
                 <span aria-hidden="true">/</span>
                 <span>{text.detail.purchaseInfo}</span>

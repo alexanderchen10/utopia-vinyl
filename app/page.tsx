@@ -22,6 +22,7 @@ import {
 import {
   initialRecords,
   isSpecialPrice,
+  formatStorePrice,
   type VinylRecord,
 } from '@/lib/catalog';
 import { copy } from '@/lib/site-copy';
@@ -437,7 +438,7 @@ export default function Home() {
                             </div>
                           </dl>
                           <div className="record-status">
-                            <strong>{record.price}</strong>
+                            <strong>{formatStorePrice(record.price)}</strong>
                             <span>{record.condition}</span>
                           </div>
                         </div>
