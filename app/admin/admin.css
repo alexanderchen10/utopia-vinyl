@@ -1929,6 +1929,19 @@ main.admin-page {
 .batch-publish-controls select { min-height:52px; border:1px solid #bdccdc; border-radius:9px; background:#fff; padding:0 14px; font:inherit; }
 .batch-publish-controls p { margin:0; color:#5f7188; }
 .batch-publish-controls p strong { color:#115cb1; font-size:1.5rem; }
+.batch-shopify-workflow { margin:0 0 24px; padding:24px; border:1px solid #d3dfeb; border-radius:16px; background:#fff; }
+.batch-workflow-heading { display:flex; align-items:start; justify-content:space-between; gap:24px; margin-bottom:20px; }
+.batch-workflow-heading span { display:block; margin-bottom:5px; color:#1768bd; font-size:.78rem; font-weight:800; letter-spacing:.12em; }
+.batch-workflow-heading h2 { margin:0; color:#12243b; font-size:1.25rem; }
+.batch-workflow-heading > small { padding:7px 11px; border-radius:999px; background:#fff4d8; color:#8b6500; font-weight:800; white-space:nowrap; }
+.batch-shopify-workflow ol { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:38px; margin:0; padding:0; list-style:none; }
+.batch-shopify-workflow li { position:relative; min-height:132px; padding:18px; border:1px solid #cddbeb; border-radius:13px; background:#f8fbff; }
+.batch-shopify-workflow li:not(:last-child)::after { content:'↓'; position:absolute; right:-28px; top:50%; translate:0 -50%; color:#1768bd; font-size:1.35rem; font-weight:900; rotate:-90deg; }
+.batch-shopify-workflow li > span { display:block; margin-bottom:17px; color:#1768bd; font-size:.75rem; font-weight:900; letter-spacing:.12em; }
+.batch-shopify-workflow li strong { display:block; color:#12243b; line-height:1.35; }
+.batch-shopify-workflow li small { display:block; margin-top:8px; color:#687a90; line-height:1.45; }
+.batch-shopify-workflow li.is-pending { border-style:dashed; background:#faf8f2; }
+.batch-shopify-workflow li.is-pending > span { color:#9a7515; }
 .batch-publish-message { display:block; margin-bottom:20px; padding:14px 18px; border-radius:10px; background:#e5f0ff; color:#174f91; }
 .batch-publish-list { display:grid; gap:12px; padding-bottom:112px; }
 .batch-publish-list > label { display:grid; grid-template-columns:34px 92px 1fr; align-items:center; gap:16px; padding:14px; border:2px solid #d7e1eb; border-radius:14px; background:#fff; cursor:pointer; }
@@ -1964,6 +1977,10 @@ main.admin-page {
   .calendar-grid > button,.calendar-empty-cell { min-height:82px; padding:7px; }
   .batch-publish-controls { align-items:stretch; flex-direction:column; }
   .batch-publish-controls label { min-width:0; }
+  .batch-shopify-workflow ol { grid-template-columns:1fr; gap:34px; }
+  .batch-shopify-workflow li { min-height:0; }
+  .batch-shopify-workflow li:not(:last-child)::after { right:auto; left:50%; top:auto; bottom:-30px; translate:-50% 0; rotate:0deg; }
+  .batch-workflow-heading { align-items:flex-start; flex-direction:column; gap:12px; }
   .batch-publish-list > label { grid-template-columns:30px 72px 1fr; gap:10px; }
   .batch-publish-cover { width:72px; height:72px; }
   .batch-publish-footer { bottom:10px; }
