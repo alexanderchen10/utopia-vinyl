@@ -12,6 +12,7 @@ import {
   Search,
   ShoppingBag,
   SlidersHorizontal,
+  X,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -63,6 +64,9 @@ export default function Home() {
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [now, setNow] = useState<Date | null>(null);
+  const [cartIds, setCartIds] = useState<string[]>([]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartReady, setCartReady] = useState(false);
   const selectedNav =
     navigation.find((item) => item.id === selected) ?? navigation[0];
   const selectedNavLabel = text.nav[selectedNav.key as keyof typeof text.nav];
@@ -142,6 +146,21 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    try {
+      const stored = JSON.parse(window.localStorage.getItem('utopia-vinyl-cart') ?? '[]') as unknown;
+      if (Array.isArray(stored)) setCartIds(stored.filter((id): id is string => typeof id === 'string'));
+    } catch {
+      setCartIds([]);
+    } finally {
+      setCartReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (cartReady) window.localStorage.setItem('utopia-vinyl-cart', JSON.stringify(cartIds));
+  }, [cartIds, cartReady]);
+
+  useEffect(() => {
     const update = () => setNow(new Date());
     update();
     const timer = window.setInterval(update, 1000);
@@ -157,6 +176,14 @@ export default function Home() {
     hours: Math.floor((remaining / 3_600_000) % 24),
     minutes: Math.floor((remaining / 60_000) % 60),
   };
+  const cartRecords = cartIds.flatMap((id) => {
+    const record = records.find((item) => item.id === id);
+    return record ? [record] : [];
+  });
+  const cartSubtotal = cartRecords.reduce((sum, record) => {
+    const price = Number(record.price.replace(/[^0-9.]/g, ''));
+    return sum + (Number.isFinite(price) ? price : 0);
+  }, 0);
 
   function selectCollection(id: string) {
     setSelected(id);
@@ -213,14 +240,16 @@ export default function Home() {
             <Button
               aria-label={
                 language === 'en'
-                  ? 'Shopping bag, currently empty'
-                  : '購物袋，目前沒有商品'
+                  ? `Shopping cart, ${cartRecords.length} items`
+                  : `購物車，目前 ${cartRecords.length} 張唱片`
               }
-              disabled
+              className="cart-trigger"
+              onClick={() => setCartOpen(true)}
               size="icon"
               variant="ghost"
             >
               <ShoppingBag />
+              {cartRecords.length ? <span>{cartRecords.length}</span> : null}
             </Button>
           </div>
         </div>
@@ -478,6 +507,19 @@ export default function Home() {
                           </div>
                         </div>
                       </Link>
+                      <button
+                        className="add-to-cart"
+                        disabled={cartIds.includes(record.id) || !/[0-9]/.test(record.price)}
+                        onClick={() => {
+                          setCartIds((current) => current.includes(record.id) ? current : [...current, record.id]);
+                          setCartOpen(true);
+                        }}
+                        type="button"
+                      >
+                        {cartIds.includes(record.id)
+                          ? language === 'en' ? 'In cart' : '已加入購物車'
+                          : language === 'en' ? 'Add to cart' : '加入購物車'}
+                      </button>
                     </article>
                   ))}
                 </div>
@@ -554,6 +596,18 @@ export default function Home() {
             </div>
           </div>
         </section>
+      ) : null}
+
+      {cartOpen ? (
+        <div className="cart-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setCartOpen(false); }}>
+          <aside aria-label={language === 'en' ? 'Shopping cart' : '購物車'} aria-modal="true" className="cart-drawer" role="dialog">
+            <header><div><span>{language === 'en' ? 'Your selection' : '您的選擇'}</span><h2>{language === 'en' ? 'Shopping cart' : '購物車'}</h2></div><button aria-label={language === 'en' ? 'Close cart' : '關閉購物車'} onClick={() => setCartOpen(false)} type="button"><X aria-hidden="true" /></button></header>
+            {cartRecords.length ? (
+              <div className="cart-items">{cartRecords.map((record) => <article key={record.id}><div className="cart-cover"><Image alt={`${record.title} 封面`} fill sizes="76px" src={record.image} /></div><div><small>{record.composers}</small><strong>{record.title}</strong><span>{formatStorePrice(record.price)}</span></div><button aria-label={`${language === 'en' ? 'Remove' : '移除'} ${record.title}`} onClick={() => setCartIds((current) => current.filter((id) => id !== record.id))} type="button"><X aria-hidden="true" /></button></article>)}</div>
+            ) : <div className="cart-empty"><ShoppingBag aria-hidden="true" /><p>{language === 'en' ? 'Your cart is empty.' : '購物車目前沒有唱片。'}</p></div>}
+            <footer className="cart-summary"><div><span>{language === 'en' ? 'Subtotal' : '小計'}</span><strong>NT$ {cartSubtotal.toLocaleString('en-US')}</strong></div><button disabled type="button">{language === 'en' ? 'Checkout' : '前往結帳'}</button><small>{language === 'en' ? 'Shopify checkout will be enabled after the store credentials and product IDs are connected.' : 'Shopify 商店憑證與商品 ID 連線後，即會啟用安全結帳。'}</small></footer>
+          </aside>
+        </div>
       ) : null}
 
       <footer>
