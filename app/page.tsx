@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Disc3,
   Heart,
   Search,
@@ -45,6 +47,7 @@ const navigation = [
 ];
 
 export default function Home() {
+  const reviewTrackRef = useRef<HTMLDivElement>(null);
   const [language, setLanguage] = useSiteLanguage();
   const text = copy[language];
   const [records, setRecords] = useState<VinylRecord[]>(initialRecords);
@@ -480,7 +483,27 @@ export default function Home() {
               </div>
               <p>{text.home.reviewsIntro}</p>
             </div>
-            <div className="review-grid">
+            <div className="review-carousel-controls" aria-label="評論輪播控制">
+              <button
+                aria-label="上一則評論"
+                onClick={() =>
+                  reviewTrackRef.current?.scrollBy({ left: -360, behavior: 'smooth' })
+                }
+                type="button"
+              >
+                <ChevronLeft aria-hidden="true" />
+              </button>
+              <button
+                aria-label="下一則評論"
+                onClick={() =>
+                  reviewTrackRef.current?.scrollBy({ left: 360, behavior: 'smooth' })
+                }
+                type="button"
+              >
+                <ChevronRight aria-hidden="true" />
+              </button>
+            </div>
+            <div className="review-grid" ref={reviewTrackRef}>
               {text.home.reviews.map(([quote, author]) => (
                 <figure className="review-card" key={author}>
                   <blockquote>{quote}</blockquote>

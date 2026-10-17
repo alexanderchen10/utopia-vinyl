@@ -1331,13 +1331,42 @@ input:focus-visible {
 }
 
 .review-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
   gap: 20px;
+  overflow-x: auto;
+  padding: 8px 3px 22px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.review-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.review-carousel-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: -18px 0 14px;
+}
+
+.review-carousel-controls button {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #cbd0d6;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--foreground);
+  cursor: pointer;
 }
 
 .review-card {
-  min-height: 244px;
+  min-width: min(310px, 78vw);
+  min-height: 390px;
+  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1538,7 +1567,12 @@ footer {
   }
 
   .review-grid {
-    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .review-card {
+    min-width: min(290px, 82vw);
+    min-height: 370px;
   }
 
   .footer-inner {
