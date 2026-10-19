@@ -355,38 +355,65 @@ input:focus-visible {
 }
 
 .landing-hero {
-  min-height: 460px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
+  position: relative;
+  min-height: clamp(650px, calc(100svh - 220px), 900px);
+  display: flex;
   align-items: center;
-  gap: 64px;
-  padding-top: 84px;
-  padding-bottom: 82px;
-  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  isolation: isolate;
+  background: #16120f;
+}
+
+.landing-hero-image {
+  z-index: -3;
+  object-fit: cover;
+  object-position: 56% 48%;
+}
+
+.landing-hero-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(90deg, rgba(12, 9, 7, 0.92) 0%, rgba(12, 9, 7, 0.74) 38%, rgba(12, 9, 7, 0.24) 70%, rgba(12, 9, 7, 0.08) 100%),
+    linear-gradient(0deg, rgba(9, 7, 5, 0.38) 0%, transparent 45%);
+}
+
+.landing-hero-inner {
+  display: flex;
+  align-items: center;
+  min-height: inherit;
+  padding-top: 72px;
+  padding-bottom: 76px;
 }
 
 .landing-hero-copy {
-  max-width: 780px;
+  max-width: 850px;
+  color: #fff;
 }
 
 .landing-hero-copy h1 {
   margin: 0;
   font-family:
     'Avenir Next', 'Helvetica Neue', 'PingFang TC', 'Noto Sans TC', sans-serif;
-  font-size: clamp(62px, 9vw, 132px);
+  font-size: clamp(68px, 9vw, 138px);
   font-weight: 400;
   letter-spacing: 0.02em;
   line-height: 0.96;
 }
 
 .landing-message {
-  max-width: 650px;
+  max-width: 780px;
   margin: 30px 0 26px;
-  color: var(--ink-soft);
+  color: rgba(255, 255, 255, 0.86);
   font-family:
     'Avenir Next', 'Helvetica Neue', 'PingFang TC', 'Noto Sans TC', sans-serif;
-  font-size: 17px;
-  line-height: 2;
+  font-size: clamp(16px, 1.35vw, 20px);
+  line-height: 1.9;
+}
+
+.landing-hero .eyebrow {
+  color: #f2c7bf;
 }
 
 .landing-cta {
@@ -394,8 +421,8 @@ input:focus-visible {
   align-items: center;
   gap: 20px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--foreground);
-  color: var(--red);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.72);
+  color: #fff;
   font-size: 12px;
   letter-spacing: 0.1em;
 }
@@ -403,20 +430,6 @@ input:focus-visible {
 .landing-cta span {
   font-size: 19px;
   line-height: 0.7;
-}
-
-.landing-hero-mark {
-  width: 280px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.landing-logo {
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
 }
 
 .about-section {
@@ -1633,15 +1646,12 @@ footer {
   }
 
   .landing-hero {
-    min-height: 400px;
-    grid-template-columns: minmax(0, 1fr) 190px;
-    gap: 30px;
-    padding-top: 64px;
-    padding-bottom: 62px;
+    min-height: 620px;
   }
 
-  .landing-hero-mark {
-    width: 190px;
+  .landing-hero-inner {
+    padding-top: 60px;
+    padding-bottom: 64px;
   }
 
   .about-section {
@@ -1740,24 +1750,36 @@ footer {
   }
 
   .landing-hero {
-    min-height: 0;
-    display: block;
-    padding-top: 56px;
-    padding-bottom: 54px;
+    min-height: min(720px, calc(100svh - 142px));
+    align-items: flex-end;
+  }
+
+  .landing-hero-image {
+    object-position: 60% center;
+  }
+
+  .landing-hero-shade {
+    background:
+      linear-gradient(0deg, rgba(10, 8, 6, 0.96) 0%, rgba(10, 8, 6, 0.7) 55%, rgba(10, 8, 6, 0.14) 100%),
+      linear-gradient(90deg, rgba(10, 8, 6, 0.34), transparent 80%);
+  }
+
+  .landing-hero-inner {
+    min-height: inherit;
+    align-items: flex-end;
+    padding-top: 170px;
+    padding-bottom: 42px;
   }
 
   .landing-hero-copy h1 {
-    font-size: 62px;
+    font-size: clamp(58px, 17vw, 82px);
+    line-height: 1.02;
   }
 
   .landing-message {
-    margin-top: 24px;
-    font-size: 15px;
-  }
-
-  .landing-hero-mark {
-    width: 180px;
-    margin-top: 36px;
+    margin: 22px 0 22px;
+    font-size: 14px;
+    line-height: 1.75;
   }
 
   .about-section {

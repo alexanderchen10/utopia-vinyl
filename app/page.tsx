@@ -337,24 +337,26 @@ export default function Home() {
       </header>
 
       {selected === 'home' ? (
-        <section className="landing-hero shell" aria-labelledby="landing-title">
-          <div className="landing-hero-copy">
-            <p className="eyebrow">{text.home.landingEyebrow}</p>
-            <h1 id="landing-title">{text.home.landingTitle}</h1>
-            <p className="landing-message">{text.home.landingMessage}</p>
-            <a className="landing-cta" href="#about">
-              {text.home.landingCta}
-              <span aria-hidden="true">↓</span>
-            </a>
-          </div>
-          <div className="landing-hero-mark">
-            <Image
-              alt={text.home.logoAlt}
-              className="landing-logo"
-              height={1024}
-              src="/utopia-vinyl.png"
-              width={1536}
-            />
+        <section className="landing-hero" aria-labelledby="landing-title">
+          <Image
+            alt="黑膠唱片在唱盤上播放"
+            className="landing-hero-image"
+            fill
+            priority
+            sizes="100vw"
+            src="/coverpagevinyl-hero.jpg"
+          />
+          <div className="landing-hero-shade" aria-hidden="true" />
+          <div className="landing-hero-inner shell">
+            <div className="landing-hero-copy">
+              <p className="eyebrow">{text.home.landingEyebrow}</p>
+              <h1 id="landing-title">{text.home.landingTitle}</h1>
+              <p className="landing-message">{text.home.landingMessage}</p>
+              <a className="landing-cta" href="#about">
+                {text.home.landingCta}
+                <span aria-hidden="true">↓</span>
+              </a>
+            </div>
           </div>
         </section>
       ) : null}
