@@ -67,6 +67,12 @@ export default function Home() {
   const [cartIds, setCartIds] = useState<string[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [cartReady, setCartReady] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<'cart' | 'details' | 'review' | 'confirmed'>('cart');
+  const [checkoutBusy, setCheckoutBusy] = useState(false);
+  const [checkoutMessage, setCheckoutMessage] = useState('');
+  const [checkoutKey, setCheckoutKey] = useState('');
+  const [customer, setCustomer] = useState({ name:'', email:'', phone:'', address:'', note:'', privacyConsent:false });
+  const [confirmation, setConfirmation] = useState<{order_number:string;payment_deadline:string;subtotal_twd:number;bank:string;account:string;note:string} | null>(null);
   const selectedNav =
     navigation.find((item) => item.id === selected) ?? navigation[0];
   const selectedNavLabel = text.nav[selectedNav.key as keyof typeof text.nav];
@@ -195,6 +201,31 @@ export default function Home() {
         .querySelector('.collection-heading')
         ?.scrollIntoView({ behavior: 'smooth' });
     }
+  }
+
+  function beginCheckout() {
+    setCheckoutMessage('');
+    setCheckoutKey(crypto.randomUUID());
+    setCheckoutStep('details');
+  }
+
+  async function placeOrder() {
+    setCheckoutBusy(true);
+    setCheckoutMessage('');
+    try {
+      const response = await fetch('/api/orders', {
+        method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ recordIds:cartIds, idempotencyKey:checkoutKey, customer }),
+      });
+      const result = await response.json() as {message?:string;order?:{order_number:string;payment_deadline:string;subtotal_twd:number};paymentInstructions?:{bank:string;account:string;note:string}};
+      if (!response.ok || !result.order || !result.paymentInstructions) throw new Error(result.message || '暫時無法建立訂單。');
+      setConfirmation({...result.order, ...result.paymentInstructions});
+      setCartIds([]);
+      setCheckoutStep('confirmed');
+      void fetch('/api/records').then(async (res) => await res.json() as {records?:VinylRecord[]}).then((data) => { if (Array.isArray(data.records)) setRecords(data.records); });
+    } catch (error) {
+      setCheckoutMessage(error instanceof Error ? error.message : '暫時無法建立訂單。');
+    } finally { setCheckoutBusy(false); }
   }
 
   return (
@@ -603,10 +634,25 @@ export default function Home() {
         <div className="cart-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setCartOpen(false); }}>
           <aside aria-label={language === 'en' ? 'Shopping cart' : '購物車'} aria-modal="true" className="cart-drawer" role="dialog">
             <header><div><span>{language === 'en' ? 'Your selection' : '您的選擇'}</span><h2>{language === 'en' ? 'Shopping cart' : '購物車'}</h2></div><button aria-label={language === 'en' ? 'Close cart' : '關閉購物車'} onClick={() => setCartOpen(false)} type="button"><X aria-hidden="true" /></button></header>
-            {cartRecords.length ? (
+            {checkoutStep === 'cart' && cartRecords.length ? (
               <div className="cart-items">{cartRecords.map((record) => <article key={record.id}><div className="cart-cover"><Image alt={`${record.title} 封面`} fill sizes="76px" src={record.image} /></div><div><small>{record.composers}</small><strong>{record.title}</strong><span>{formatStorePrice(record.price)}</span></div><button aria-label={`${language === 'en' ? 'Remove' : '移除'} ${record.title}`} onClick={() => setCartIds((current) => current.filter((id) => id !== record.id))} type="button"><X aria-hidden="true" /></button></article>)}</div>
+            ) : checkoutStep === 'details' ? (
+              <form className="checkout-form" onSubmit={(event) => { event.preventDefault(); setCheckoutMessage(''); setCheckoutStep('review'); }}>
+                <h3>聯絡與寄送資料</h3>
+                <label>姓名<input required value={customer.name} onChange={(event) => setCustomer({...customer,name:event.target.value})} /></label>
+                <label>電子郵件<input required type="email" value={customer.email} onChange={(event) => setCustomer({...customer,email:event.target.value})} /></label>
+                <label>電話<input required value={customer.phone} onChange={(event) => setCustomer({...customer,phone:event.target.value})} /></label>
+                <label>完整寄送地址<textarea required rows={4} value={customer.address} onChange={(event) => setCustomer({...customer,address:event.target.value})} /></label>
+                <label>訂單備註（選填）<textarea rows={2} value={customer.note} onChange={(event) => setCustomer({...customer,note:event.target.value})} /></label>
+                <label className="privacy-check"><input required type="checkbox" checked={customer.privacyConsent} onChange={(event) => setCustomer({...customer,privacyConsent:event.target.checked})} /> 我同意僅為處理本訂單而蒐集以上資料。</label>
+                <div className="checkout-actions"><button type="button" onClick={() => setCheckoutStep('cart')}>返回</button><button type="submit">檢查訂單</button></div>
+              </form>
+            ) : checkoutStep === 'review' ? (
+              <div className="checkout-review"><h3>確認訂單</h3><p>{customer.name} · {customer.phone}</p><p>{customer.address}</p><ul>{cartRecords.map((record) => <li key={record.id}><span>{record.title}</span><strong>{formatStorePrice(record.price)}</strong></li>)}</ul><div><span>總計</span><strong>NT$ {cartSubtotal.toLocaleString('en-US')}</strong></div>{checkoutMessage ? <p className="checkout-error">{checkoutMessage}</p> : null}<div className="checkout-actions"><button type="button" onClick={() => setCheckoutStep('details')}>修改資料</button><button disabled={checkoutBusy} onClick={() => void placeOrder()} type="button">{checkoutBusy ? '建立訂單中…' : '送出訂單並保留唱片'}</button></div><small>送出後保留 48 小時。所有唱片會一次保留；若其中一張已無法購買，整筆訂單不會成立。</small></div>
+            ) : checkoutStep === 'confirmed' && confirmation ? (
+              <div className="order-confirmation"><span>訂單已建立（測試模式）</span><h3>{confirmation.order_number}</h3><p>請於 {new Date(confirmation.payment_deadline).toLocaleString('zh-TW')} 前完成轉帳。</p><dl><div><dt>銀行</dt><dd>{confirmation.bank}</dd></div><div><dt>帳號</dt><dd>{confirmation.account}</dd></div><div><dt>金額</dt><dd>NT$ {confirmation.subtotal_twd.toLocaleString('en-US')}</dd></div></dl><strong>{confirmation.note}</strong><button onClick={() => { setCheckoutStep('cart'); setConfirmation(null); setCartOpen(false); }} type="button">完成</button></div>
             ) : <div className="cart-empty"><ShoppingBag aria-hidden="true" /><p>{language === 'en' ? 'Your cart is empty.' : '購物車目前沒有唱片。'}</p></div>}
-            <footer className="cart-summary"><div><span>{language === 'en' ? 'Subtotal' : '小計'}</span><strong>NT$ {cartSubtotal.toLocaleString('en-US')}</strong></div><button disabled type="button">{language === 'en' ? 'Checkout' : '前往結帳'}</button><small>{language === 'en' ? 'Shopify checkout will be enabled after the store credentials and product IDs are connected.' : 'Shopify 商店憑證與商品 ID 連線後，即會啟用安全結帳。'}</small></footer>
+            {checkoutStep === 'cart' ? <footer className="cart-summary"><div><span>{language === 'en' ? 'Subtotal' : '小計'}</span><strong>NT$ {cartSubtotal.toLocaleString('en-US')}</strong></div><button disabled={!cartRecords.length} onClick={beginCheckout} type="button">{language === 'en' ? 'Checkout' : '前往結帳'}</button><small>每張唱片庫存只有 1。送出訂單後會保留 48 小時；目前使用測試銀行資料，不會收取真實款項。</small></footer> : null}
           </aside>
         </div>
       ) : null}

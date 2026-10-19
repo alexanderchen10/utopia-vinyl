@@ -85,7 +85,7 @@ export async function listPublishedRecords(db: D1Database) {
     .bind('published')
     .all<RecordRow>();
 
-  return result.results.map(mapRecordRow);
+  return result.results.map((row) => mapRecordRow(row));
 }
 
 export async function listAdminRecords(db: D1Database) {

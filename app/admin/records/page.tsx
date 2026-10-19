@@ -722,7 +722,7 @@ export default function ManageRecordsPage() {
                   <div className="unique-inventory-policy editor-full">
                     <strong>單件黑膠庫存設定</strong>
                     <span>庫存數量 1</span><span>追蹤庫存：啟用</span><span>缺貨後繼續銷售：停用</span><span>購物車上限：1</span>
-                    <small>網站端已套用；Shopify 連線後會以相同規則更新商品。</small>
+                    <small>網站與訂單系統已套用；每張唱片只能被一筆有效訂單保留。</small>
                   </div>
                   <label className="editor-field editor-full">
                     <span>唱片名稱</span>

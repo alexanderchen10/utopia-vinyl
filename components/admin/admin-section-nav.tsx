@@ -1,4 +1,4 @@
-type AdminSection = 'add' | 'records' | 'publish' | 'history' | 'calendar' | 'shopify';
+type AdminSection = 'add' | 'records' | 'publish' | 'history' | 'calendar' | 'orders';
 
 const sections: { key: AdminSection; href: string; label: string }[] = [
   { key: 'add', href: '/admin', label: '新增唱片' },
@@ -6,7 +6,7 @@ const sections: { key: AdminSection; href: string; label: string }[] = [
   { key: 'publish', href: '/admin/batch-publish', label: '批次上架' },
   { key: 'history', href: '/admin/history', label: '上架紀錄' },
   { key: 'calendar', href: '/admin/calendar', label: '上架日曆' },
-  { key: 'shopify', href: '/admin/shopify-sync', label: 'Shopify 同步' },
+  { key: 'orders', href: '/admin/orders', label: '訂單管理' },
 ];
 
 export function AdminSectionNav({ current }: { current: AdminSection }) {

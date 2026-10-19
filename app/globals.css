@@ -948,8 +948,29 @@ input:focus-visible {
 .cart-summary > div { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
 .cart-summary > div span { color:var(--ink-soft); font-size:12px; }
 .cart-summary > div strong { font-size:18px; }
-.cart-summary > button { width:100%; min-height:50px; border:0; border-radius:8px; background:#c9c9c4; color:#fff; font:inherit; font-weight:800; cursor:not-allowed; }
+.cart-summary > button { width:100%; min-height:50px; border:0; border-radius:8px; background:var(--red); color:#fff; font:inherit; font-weight:800; cursor:pointer; }
+.cart-summary > button:disabled { background:#c9c9c4; cursor:not-allowed; }
 .cart-summary > small { display:block; margin-top:10px; color:#777772; font-size:10px; line-height:1.55; text-align:center; }
+.checkout-form,.checkout-review,.order-confirmation { overflow:auto; padding:24px 26px; }
+.checkout-form h3,.checkout-review h3,.order-confirmation h3 { margin:0 0 18px; font-size:24px; }
+.checkout-form label { display:grid; gap:6px; margin-bottom:13px; color:var(--ink-soft); font-size:12px; font-weight:700; }
+.checkout-form input,.checkout-form textarea { width:100%; border:1px solid var(--border); border-radius:8px; background:#fff; padding:11px; color:var(--ink); font:inherit; }
+.checkout-form .privacy-check { grid-template-columns:auto 1fr; align-items:start; font-weight:500; line-height:1.5; }
+.checkout-form .privacy-check input { width:auto; margin-top:3px; }
+.checkout-actions { display:grid; grid-template-columns:1fr 1.5fr; gap:10px; margin-top:18px; }
+.checkout-actions button,.order-confirmation > button { min-height:46px; border:1px solid var(--border); border-radius:8px; background:#fff; color:var(--ink); font:inherit; font-weight:800; cursor:pointer; }
+.checkout-actions button:last-child,.order-confirmation > button { border-color:var(--red); background:var(--red); color:#fff; }
+.checkout-review > p { color:var(--ink-soft); font-size:12px; }
+.checkout-review ul { margin:20px 0; padding:0; list-style:none; }
+.checkout-review li,.checkout-review > div:not(.checkout-actions) { display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
+.checkout-review small { display:block; margin-top:14px; color:var(--ink-soft); line-height:1.55; }
+.checkout-error { padding:10px; border-radius:6px; background:#fff1ef; color:#b3231f!important; }
+.order-confirmation > span { color:var(--red); font-size:11px; font-weight:800; }
+.order-confirmation dl { margin:20px 0; padding:16px; border-radius:10px; background:#fff; }
+.order-confirmation dl div { display:flex; justify-content:space-between; padding:7px 0; }
+.order-confirmation dd { margin:0; font-weight:800; }
+.order-confirmation > strong { display:block; color:#a44800; font-size:12px; line-height:1.5; }
+.order-confirmation > button { width:100%; margin-top:22px; }
 
 .product-breadcrumb {
   display: flex;

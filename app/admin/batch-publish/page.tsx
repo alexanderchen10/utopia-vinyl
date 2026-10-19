@@ -89,14 +89,14 @@ export default function BatchPublishPage() {
         <div className="batch-publish-controls"><div><span className="batch-publish-control-label">選擇批次</span><BatchNumberFields onChange={chooseBatch} value={batch} /></div><p><strong>{drafts.length}</strong> 張尚未上架・{alreadyPublished} 張已在商店</p></div>
         <section aria-labelledby="batch-workflow-title" className="batch-shopify-workflow">
           <div className="batch-workflow-heading">
-            <div><span>批次上架流程</span><h2 id="batch-workflow-title">從唱片資料到 Shopify</h2></div>
-            <small>Shopify 連線後啟用</small>
+            <div><span>內部上架流程</span><h2 id="batch-workflow-title">從唱片資料到 Utopia Vinyl 商店</h2></div>
+            <small>所有流程皆由本站管理</small>
           </div>
           <ol>
             <li><span>01</span><strong>新增／編輯唱片</strong><small>在 Utopia Vinyl 管理頁完成資料</small></li>
             <li><span>02</span><strong>儲存至 Utopia Vinyl 資料庫</strong><small>保存唱片內容、狀態與批次</small></li>
-            <li className="is-pending"><span>03</span><strong>建立或更新 Shopify 商品</strong><small>尚未啟用・等待 Shopify 憑證</small></li>
-            <li className="is-pending"><span>04</span><strong>儲存商品、規格與庫存 ID</strong><small>尚未啟用・連線後自動記錄</small></li>
+            <li><span>03</span><strong>上架至公開商店</strong><small>顧客可以瀏覽並加入購物車</small></li>
+            <li><span>04</span><strong>內部追蹤單件庫存</strong><small>訂單成立即保留；取消或逾期才歸還</small></li>
           </ol>
         </section>
         {message ? <output className="batch-publish-message">{message}</output> : null}

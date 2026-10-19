@@ -1906,6 +1906,23 @@ main.admin-page {
 .admin-docs-title h2 { margin:0; }
 .admin-docs-title .manage-search { max-width:420px; }
 .admin-docs-message { padding:36px; border-radius:16px; background:#fff; text-align:center; color:#65758b; }
+.order-filter-bar { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:24px; }
+.order-filter-bar > div { display:flex; flex-wrap:wrap; gap:8px; }
+.order-filter-bar button,.admin-order-list footer button { display:inline-flex; align-items:center; gap:7px; min-height:42px; padding:0 14px; border:1px solid #c8d7e8; border-radius:9px; background:#fff; color:#28435f; font:inherit; font-weight:800; cursor:pointer; }
+.order-filter-bar button[aria-pressed='true'],.admin-order-list footer button:first-child { border-color:#1268c9; background:#1268c9; color:#fff; }
+.admin-order-list { display:grid; gap:18px; }
+.admin-order-list > article { padding:24px; border:1px solid #d5e1ee; border-radius:18px; background:#fff; box-shadow:0 12px 35px rgba(36,70,105,.07); }
+.admin-order-list article > header { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; border-bottom:1px solid #e3ebf3; padding-bottom:16px; }
+.admin-order-list header small { color:#1268c9; font-weight:800; }
+.admin-order-list h2 { margin:5px 0 0; }
+.order-admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; padding:18px 0; }
+.order-admin-grid h3 { margin:0 0 8px; font-size:15px; }
+.order-admin-grid p { margin:5px 0; color:#5d7087; line-height:1.5; }
+.order-admin-fields { display:grid; grid-template-columns:1fr 1fr 2fr; gap:12px; }
+.order-admin-fields label { display:grid; gap:6px; color:#5d7087; font-size:12px; font-weight:800; }
+.order-admin-fields input,.order-admin-fields textarea { min-width:0; border:1px solid #c8d7e8; border-radius:8px; padding:10px; font:inherit; }
+.admin-order-list footer { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+.admin-order-list footer .danger { border-color:#e7b6b6; color:#b72d2d; }
 .admin-record-table-wrap { overflow:auto; border:1px solid #cfdeed; border-radius:18px; background:#fff; box-shadow:0 14px 40px rgba(33,72,113,.08); }
 .admin-record-table { width:100%; min-width:1120px; border-collapse:collapse; font-size:.9rem; }
 .admin-record-table th { background:#e6f0fb; color:#35516f; text-align:left; font-size:.78rem; letter-spacing:.06em; }
